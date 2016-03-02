@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+import sys, argparse
+from subprocess import call
+from subprocess import check_call
+import os.path
+import argparse
+import atexit
+import time
+
+workspaceDir = os.path.dirname(os.path.realpath(__file__))
+sourceDir = os.path.join(workspaceDir, 'WebKitGtk/')
+buildRootDir = os.path.join(workspaceDir, 'out/')
+installDir = os.path.join(workspaceDir, 'Dependencies/Root')
+
+debugBuildDir = os.path.join(buildRootDir, 'Debug/')
+releaseBuildDir = os.path.join(buildRootDir, 'Release/')
+profileBuildDir = os.path.join(buildRootDir, 'Profile/')
+
+buildFinishedSound = os.path.join(workspaceDir, "resource/build_finished.wav")
+startTime = time.time()
+
+icecc_clang_env = os.path.join(workspaceDir, "resource/icecc_clang_3.8_env.tar.gz")
+
+def ensureBuildDir(options):
+    if options.debug:
+      targetDir = debugBuildDir
+    elif not options.debug:
+      targetDir = releaseBuildDir
+
+    if targetDir is None:
+      print "Error: Invalid build dir"
+      sys.exit(2)
+
+    if not os.path.exists(targetDir):
+        os.makedirs(targetDir)
+    return targetDir
+
+def jhbuildCmd():
+    return ["jhbuild", "-f", os.path.join(workspaceDir,'jhbuildrc'), "run"]
+
+def runCMake(options):
+    workingDir = ensureBuildDir(options)
+    os.chdir(workingDir)
+
+    cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
+    # Enable threaded compositor always for now
+    cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=ON")
+    # Enable Gstreamer GL always for now
+    cmakeargs.append("-DUSE_GSTREAMER_GL=ON")
+    #cmakeargs.append("-DUSE_REDIRECTED_XCOMPOSITE_WINDOW=OFF")
+
+    cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + installDir)
+    cmakeargs.append("-DCMAKE_INSTALL_LIBDIR=lib")
+
+    if options.debug:
+        # Turn of debug fission for icecc
+        cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
+        cmakeargs.append("-DDEBUG_FISSION=OFF")
+    else:
+        cmakeargs.append("-DCMAKE_BUILD_TYPE=Release")
+
+    cmakeCommand = jhbuildCmd() + ["cmake", sourceDir] + cmakeargs
+    setEnvForClang()
+    call(cmakeCommand)
+
+def installWebKitGtk(options):
+    workingDir = ensureBuildDir(options)
+    os.chdir(workingDir)
+    installCommand = jhbuildCmd() + ["cmake", "-P", workingDir + '/cmake_install.cmake']
+    call(installCommand)
+
+def buildWebKitGtk(options):
+    runCMake(options)
+    workingDir = ensureBuildDir(options)
+    os.chdir(workingDir)
+
+    setEnvForClang()
+    buildCommand = jhbuildCmd() + ["ninja-build", "-j38"]
+    call(buildCommand)
+
+def buildFinished():
+    elapsedTime = round(time.time() - startTime)
+    if elapsedTime > 30:
+      call(["/usr/bin/aplay", "-q", buildFinishedSound])
+
+def setEnvForClang():
+    os.environ["CC"]="clang"
+    os.environ["CXX"]="clang++"
+    os.environ["CCACHE_CPP2"]="yes"
+    os.environ["ICECC_VERSION"]=icecc_clang_env
+
+def main(argv):
+    argParser = argparse.ArgumentParser(description='Build webkit using custom jhbuild env')
+    argParser.add_argument('--debug', action='store_true', default=False, help='Compile with Debug configuration (default: Release)')
+    argParser.add_argument('--analyze', action='store_true', help='Enable static analysis [Not yet]')
+    argParser.add_argument('--install', action='store_true', default=False, help='Install Webkit to jhbuild')
+
+    options = argParser.parse_args()
+    atexit.register(buildFinished)
+    buildWebKitGtk(options)
+
+    if options.install:
+      installWebKitGtk(options)
+
+
+if __name__ == '__main__':
+    main(sys.argv)
+
+

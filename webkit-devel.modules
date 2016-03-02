@@ -1,0 +1,151 @@
+<?xml version="1.0"?><!--*- mode: nxml; indent-tabs-mode: nil -*-->
+<!DOCTYPE moduleset SYSTEM "moduleset.dtd">
+<?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
+<!-- vim:set ts=2 expandtab: -->
+<moduleset>
+  <repository type="git" name="wayland" default="yes"
+      href="git://anongit.freedesktop.org/git/wayland"/>
+
+  <repository type="git" name="yoon.gstreamer"
+      href="/home/yoon/webkit/gstreamer"/>
+
+
+  <!-- Platform metamodule -->
+  <metamodule id="meta-epiphany-deps-except-webkit">
+    <dependencies>
+      <dep package="json-glib"/>
+      <dep package="appstream-glib"/>
+      <dep package="intltool"/>
+      <dep package="iso-codes"/>
+      <dep package="gtk+"/>
+      <dep package="m4-common"/>
+      <dep package="startup-notification"/>
+      <dep package="gcr"/>
+      <dep package="avahi"/>
+      <dep package="gnome-desktop"/>
+      <dep package="libwnck"/>
+      <dep package="libnotify"/>
+      <dep package="libsecret"/>
+      <dep package="libsoup"/>
+    </dependencies>
+  </metamodule>
+
+  <metamodule id="meta-webkit-deps">
+    <dependencies>
+      <dep package="c++"/>
+      <dep package="at-spi2-core"/>
+      <dep package="cairo"/>
+      <dep package="enchant"/>
+      <dep package="fontconfig"/>
+      <dep package="freetype2"/>
+      <dep package="geoclue"/>
+      <dep package="gobject-introspection"/>
+      <dep package="gperf"/>
+      <dep package="gst-plugins-base"/>
+      <dep package="gtk+"/>
+      <!-- GTK+ 2.x required for the plugin process -->
+      <dep package="gtk+-2"/>
+      <dep package="harfbuzz"/>
+      <dep package="hyphen"/>
+      <dep package="libicu"/>
+      <dep package="libjpeg"/>
+      <dep package="libnotify"/>
+      <dep package="libpng"/>
+      <dep package="libsecret"/>
+      <dep package="libsoup"/>
+      <dep package="libwebp"/>
+      <dep package="libxml2"/>
+      <dep package="libxslt"/>
+      <!-- Either libGL or libGLES is required. -->
+      <dep package="mesa-libGLES"/>
+      <dep package="pango"/>
+      <dep package="ruby"/>
+      <dep package="sqlite3"/>
+      <if condition-set="x11">
+        <dep package="libXcomposite"/>
+        <dep package="libXdamage"/>
+        <dep package="libXrender"/>
+        <dep package="libXt"/>
+      </if>
+      <dep package="wayland"/>
+      <dep package="weston"/>
+    </dependencies>
+  </metamodule>
+
+  <autotools id="weston" autogenargs="--disable-setuid-install">
+    <branch repo="wayland"/>
+    <dependencies>
+      <dep package="wayland-protocols"/>
+      <dep package="wayland"/>
+      <dep package="cairo"/>
+      <dep package="libxkbcommon"/>
+      <dep package="mesa-libGLES"/>
+      <dep package="libinput"/>
+      <dep package="libwacom"/>
+    </dependencies>
+  </autotools>
+
+  <autotools id="gstreamer" autogenargs="--disable-gtk-doc --disable-introspection --enable-debug">
+    <branch module="gstreamer" branch="master" repo="yoon.gstreamer" />
+  </autotools>
+
+  <autotools id="gst-plugins-base"
+             autogen-sh="autogen.sh"
+             autogenargs="--disable-examples --disable-gtk-doc --disable-introspection --enable-debug">
+    <dependencies>
+      <dep package="gstreamer"/>
+    </dependencies>
+    <branch module="gst-plugins-base" branch="master" repo="yoon.gstreamer" />
+  </autotools>
+
+  <autotools id="gst-plugins-good" autogenargs="--disable-examples --disable-soup --disable-gtk-doc --disable-introspection --enable-debug">
+    <dependencies>
+      <dep package="gst-plugins-base"/>
+    </dependencies>
+
+    <branch module="gst-plugins-good" branch="master" repo="yoon.gstreamer" />
+  </autotools>
+
+  <autotools id="gst-plugins-bad" autogenargs="--disable-examples --disable-gtk-doc --disable-introspection --enable-debug">
+    <dependencies>
+      <dep package="gst-plugins-base"/>
+    </dependencies>
+    <branch module="gst-plugins-bad" branch="master" revision="master" repo="yoon.gstreamer" />
+  </autotools>
+
+  <autotools id="gst-libav" autogenargs="--with-libav-extra-configure='--disable-yasm' --disable-gtk-doc">
+    <dependencies>
+      <dep package="gst-plugins-base"/>
+    </dependencies>
+    <branch module="gst-libav" branch="master" repo="yoon.gstreamer" />
+  </autotools>
+
+  <autotools id="gstreamer-vaapi" autogenargs="--disable-gtk-doc --disable-introspection --enable-debug">
+    <dependencies>
+      <dep package="gst-plugins-bad"/>
+    </dependencies>
+    <branch module="gstreamer-vaapi" branch="master" revision="master" repo="yoon.gstreamer" />
+  </autotools>
+
+  <metamodule id="meta-gstreamer">
+    <dependencies>
+      <dep package="gstreamer"/>
+      <dep package="gst-plugins-base"/>
+      <dep package="gst-plugins-good"/>
+      <dep package="gst-plugins-bad"/>
+      <dep package="gst-libav"/>
+      <dep package="gstreamer-vaapi"/>
+    </dependencies>
+  </metamodule>
+
+
+  <metamodule id="meta-webkit-devel">
+    <dependencies>
+      <dep package="meta-epiphany-deps-except-webkit"/>
+      <dep package="meta-webkit-deps"/>
+      <dep package="meta-gstreamer"/>
+      <dep package="weston"/>
+    </dependencies>
+  </metamodule>
+
+</moduleset>
