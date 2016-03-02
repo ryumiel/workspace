@@ -5,6 +5,8 @@
 <moduleset>
   <repository type="git" name="wayland" default="yes"
       href="git://anongit.freedesktop.org/git/wayland"/>
+  <repository type="git" name="git.freedesktop.org"
+      href="git://anongit.freedesktop.org/"/>
 
   <repository type="git" name="yoon.gstreamer"
       href="/home/yoon/webkit/gstreamer"/>
@@ -127,6 +129,12 @@
     <branch module="gstreamer-vaapi" branch="master" revision="master" repo="yoon.gstreamer" />
   </autotools>
 
+  <autotools id="cairo">
+    <autogenargs value="--enable-gl=yes --enable-egl=yes --enable-glx=yes"/>
+    <branch repo="git.freedesktop.org">
+    </branch>
+  </autotools>
+
   <metamodule id="meta-gstreamer">
     <dependencies>
       <dep package="gstreamer"/>
@@ -145,6 +153,7 @@
       <dep package="meta-webkit-deps"/>
       <dep package="meta-gstreamer"/>
       <dep package="weston"/>
+      <dep package="cairo"/>
     </dependencies>
   </metamodule>
 
