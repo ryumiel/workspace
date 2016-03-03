@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+
+import sys
+from subprocess import call
+import atexit
+import time
+import os.path
+import git
+from git import RemoteProgress
+import logging
+
+workspaceDir = os.path.dirname(os.path.realpath(__file__))
+buildDir = os.path.join(workspaceDir, 'out/llvm')
+sourceDir = os.path.join(workspaceDir, 'llvm/')
+
+llvmRemoteUrl = "http://llvm.org/git/llvm.git"
+
+installPrefix = '/usr/local'
+
+buildFinishedSound = os.path.join(workspaceDir, "resource/build_finished.wav")
+startTime = time.time()
+
+mkDict = lambda srcDir, remoteUrl: {
+  'srcDir': os.path.join(workspaceDir,srcDir),
+  'remoteUrl': remoteUrl,
+  'gitRepo': None
+}
+
+repoList = [
+  mkDict('llvm/', 'git@github.com:llvm-mirror/llvm.git'),
+  mkDict('llvm/tools/clang/', 'git@github.com:llvm-mirror/clang.git'),
+  mkDict('llvm/tools/clang/tools/extra', 'git@github.com:llvm-mirror/clang-tools-extra.git'),
+  mkDict('llvm/project/compiler-rt/', 'git@github.com:llvm-mirror/compiler-rt.git'),
+  mkDict('llvm/project/libcxx/', 'git@github.com:llvm-mirror/libcxx.git'),
+]
+
+version = 'release_38'
+
+class GitProgress(RemoteProgress):
+  def line_dropped(self, line):
+    print line
+  def update(self, op_code,*args):
+    if op_code is RemoteProgress.BEGIN:
+      sys.stdout.write("\n\r" + self._cur_line)
+    elif op_code is RemoteProgress.END:
+      print self._cur_line
+    else:
+      sys.stdout.write("\r" + self._cur_line)
+
+def buildFinished():
+  elapsedTime = round(time.time() - startTime)
+  if elapsedTime > 30:
+    call(["/usr/bin/aplay", "-q", buildFinishedSound])
+
+def cloneFromOrigin(repo):
+  print "Cloning " + repo['remoteUrl'] + " into " + repo['srcDir']
+  repo['gitRepo'] = git.Repo.clone_from(repo['remoteUrl'], repo['srcDir'], GitProgress())
+  print "Finished to clone " + repo['remoteUrl'] + " into " + repo['srcDir']
+
+def ensureRepo(repo):
+  try:
+    repo['gitRepo'] = git.Repo(repo['srcDir'])
+  except:
+    repo['gitRepo'] = None
+
+  if repo['gitRepo'] is None:
+    cloneFromOrigin(repo)
+
+def selectBranches(repo):
+  git = repo['gitRepo']
+  origin = git.remote()
+  if git.head.commit != origin.refs[version].commit:
+    origin.refs[version].checkout(force = True, b=version)
+    print origin.refs[version]
+  else:
+    print repo['srcDir'] + " is already updated to " + version
+
+
+def checkoutLLVM():
+  for repo in repoList:
+    ensureRepo(repo)
+    selectBranches(repo)
+
+def ensureBuildDir():
+  if not os.path.exists(buildDir):
+    os.makedirs(buildDir)
+  return buildDir
+
+def setEnvForLLVMBuild():
+    os.environ["CC"]="gcc"
+    os.environ["CXX"]="g++"
+    os.environ["CCACHE_DISABLE"]="1"
+
+def runCMake():
+  workingDir = ensureBuildDir()
+  os.chdir(workingDir)
+
+  cmakeargs = ["-DCMAKE_BUILD_TYPE=Release", "-GNinja"]
+  cmakeargs.append("-DLLVM_TARGETS_TO_BUILD=X86")
+  cmakeargs.append("-DLLVM_INCLUDE_EXAMPLES=OFF")
+  cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + installPrefix)
+
+  cmakeargs.append("-DLLVM_ENABLE_BACKTRACES=OFF")
+  cmakeargs.append("-DLLVM_ENABLE_CRASH_OVERRIDES=OFF")
+  cmakeargs.append("-DLLVM_ENABLE_ASSERTIONS=OFF")
+  cmakeargs.append("-DLLVM_INCLUDE_DOCS=OFF")
+  cmakeargs.append("-DLLVM_INCLUDE_TESTS=OFF")
+
+  cmakeCommand = ["cmake", sourceDir] + cmakeargs
+  setEnvForLLVMBuild()
+  call(cmakeCommand)
+
+def buildLLVM():
+  os.chdir(buildDir)
+  buildCommand = ["ninja-build", "-j38"]
+  call(buildCommand)
+
+def installLLVM():
+  os.chdir(buildDir)
+  installCommand = ["sudo", "cmake", "-P", buildDir + '/cmake_install.cmake']
+  call(installCommand)
+
+def main(argv):
+  atexit.register(buildFinished)
+  checkoutLLVM()
+  runCMake()
+  buildLLVM()
+  installLLVM()
+
+if __name__ == '__main__':
+  main(sys.argv)
+
+
