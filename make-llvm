@@ -1,27 +1,25 @@
 #!/usr/bin/env python
 
+from resource.config import ConfigHelper
 import sys
 from subprocess import call
+from subprocess import check_output
 import atexit
 import time
 import os.path
+import shutil
 import git
 from git import RemoteProgress
-import logging
+import re
 
-workspaceDir = os.path.dirname(os.path.realpath(__file__))
-buildDir = os.path.join(workspaceDir, 'out/llvm')
-sourceDir = os.path.join(workspaceDir, 'llvm/')
-
-llvmRemoteUrl = "http://llvm.org/git/llvm.git"
-
-installPrefix = '/usr/local'
-
-buildFinishedSound = os.path.join(workspaceDir, "resource/build_finished.wav")
 startTime = time.time()
+config_helper = ConfigHelper()
+
+llvm_build_dir = os.path.join(config_helper.build_dir, 'llvm')
+llvm_src_dir = os.path.join(config_helper.workspace_dir, 'llvm')
 
 mkDict = lambda srcDir, remoteUrl: {
-  'srcDir': os.path.join(workspaceDir,srcDir),
+  'srcDir': os.path.join(config_helper.workspace_dir,srcDir),
   'remoteUrl': remoteUrl,
   'gitRepo': None
 }
@@ -50,7 +48,7 @@ class GitProgress(RemoteProgress):
 def buildFinished():
   elapsedTime = round(time.time() - startTime)
   if elapsedTime > 30:
-    call(["/usr/bin/aplay", "-q", buildFinishedSound])
+    call(["/usr/bin/aplay", "-q", config_helper.build_finished_sound_file])
 
 def cloneFromOrigin(repo):
   print "Cloning " + repo['remoteUrl'] + " into " + repo['srcDir']
@@ -82,9 +80,9 @@ def checkoutLLVM():
     selectBranches(repo)
 
 def ensureBuildDir():
-  if not os.path.exists(buildDir):
-    os.makedirs(buildDir)
-  return buildDir
+  if not os.path.exists(llvm_build_dir):
+    os.makedirs(llvm_build_dir)
+  return llvm_build_dir
 
 def setEnvForLLVMBuild():
     os.environ["CC"]="gcc"
@@ -92,13 +90,13 @@ def setEnvForLLVMBuild():
     os.environ["CCACHE_DISABLE"]="1"
 
 def runCMake():
-  workingDir = ensureBuildDir()
-  os.chdir(workingDir)
+  working_dir = ensureBuildDir()
+  os.chdir(working_dir)
 
   cmakeargs = ["-DCMAKE_BUILD_TYPE=Release", "-GNinja"]
   cmakeargs.append("-DLLVM_TARGETS_TO_BUILD=X86")
   cmakeargs.append("-DLLVM_INCLUDE_EXAMPLES=OFF")
-  cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + installPrefix)
+  cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + config_helper.llvm_install_prefix)
 
   cmakeargs.append("-DLLVM_ENABLE_BACKTRACES=OFF")
   cmakeargs.append("-DLLVM_ENABLE_CRASH_OVERRIDES=OFF")
@@ -106,19 +104,35 @@ def runCMake():
   cmakeargs.append("-DLLVM_INCLUDE_DOCS=OFF")
   cmakeargs.append("-DLLVM_INCLUDE_TESTS=OFF")
 
-  cmakeCommand = ["cmake", sourceDir] + cmakeargs
+  cmakeCommand = ["cmake", llvm_src_dir] + cmakeargs
   setEnvForLLVMBuild()
   call(cmakeCommand)
 
 def buildLLVM():
-  os.chdir(buildDir)
+  os.chdir(llvm_build_dir)
   buildCommand = ["ninja-build", "-j38"]
   call(buildCommand)
 
 def installLLVM():
-  os.chdir(buildDir)
-  installCommand = ["sudo", "cmake", "-P", buildDir + '/cmake_install.cmake']
+  os.chdir(llvm_build_dir)
+  installCommand = ["sudo", "cmake", "-P", llvm_build_dir + '/cmake_install.cmake']
   call(installCommand)
+
+def createICECCEnv():
+  print "Creating Icecream toolchain"
+  createEnvCmd = ['/usr/libexec/icecc/icecc-create-env', '--clang', config_helper.llvm_install_prefix + '/bin/clang', '/usr/libexec/icecc/compilerwrapper', '--addfile', '/usr/bin/objcopy']
+  output = check_output(createEnvCmd)
+  print output
+  generatedEnv = re.search(r'creating ([0-9a-f]+.tar.gz)', output)
+  if generatedEnv is None:
+    print "Failed to find created env."
+    sys.exit(2)
+
+  generatedEnv = os.path.join(os.getcwd(), generatedEnv.group(1))
+  envFileName = os.path.join(config_helper.resource_dir, "icecc_" + version + "_env.tar.gz")
+  shutil.move(generatedEnv, envFileName)
+  config_helper.config['icecc_version'] = envFileName
+  config_helper.write_config_to_file()
 
 def main(argv):
   atexit.register(buildFinished)
@@ -126,6 +140,7 @@ def main(argv):
   runCMake()
   buildLLVM()
   installLLVM()
+  createICECCEnv()
 
 if __name__ == '__main__':
   main(sys.argv)

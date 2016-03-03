@@ -1,0 +1,13 @@
+Dependencies/
+WebKitForWayland/
+WebKitGtk/
+epiphany/
+gstreamer/
+jhbuild/
+llvm/
+out/
+resource/__init__.pyc
+resource/config.json
+resource/config.pyc
+resource/icecc_release*
+

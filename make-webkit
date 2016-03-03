@@ -1,48 +1,43 @@
 #!/usr/bin/env python
 
+from resource.config import ConfigHelper
 import sys, argparse
 from subprocess import call
 from subprocess import check_call
 import os.path
-import argparse
 import atexit
 import time
 
-workspaceDir = os.path.dirname(os.path.realpath(__file__))
-sourceDir = os.path.join(workspaceDir, 'WebKitGtk/')
-buildRootDir = os.path.join(workspaceDir, 'out/')
-installDir = os.path.join(workspaceDir, 'Dependencies/Root')
-
-debugBuildDir = os.path.join(buildRootDir, 'Debug/')
-releaseBuildDir = os.path.join(buildRootDir, 'Release/')
-profileBuildDir = os.path.join(buildRootDir, 'Profile/')
-
-buildFinishedSound = os.path.join(workspaceDir, "resource/build_finished.wav")
 startTime = time.time()
+config_helper = ConfigHelper()
 
-icecc_clang_env = os.path.join(workspaceDir, "resource/icecc_clang_3.8_env.tar.gz")
-jhbuildrc_path = os.path.join(workspaceDir, "resource/jhbuildrc")
+jhbuildrc = os.path.join(config_helper.resource_dir, "jhbuildrc")
+
+webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitGtk/')
+
+debug_build_dir = os.path.join(config_helper.build_dir, 'Debug/')
+release_build_dir = os.path.join(config_helper.build_dir, 'Release/')
 
 def ensureBuildDir(options):
     if options.debug:
-      targetDir = debugBuildDir
+      target_dir = os.path.join(config_helper.build_dir, 'Debug/')
     elif not options.debug:
-      targetDir = releaseBuildDir
+      target_dir = os.path.join(config_helper.build_dir, 'Release/')
 
-    if targetDir is None:
+    if target_dir is None:
       print "Error: Invalid build dir"
       sys.exit(2)
 
-    if not os.path.exists(targetDir):
-        os.makedirs(targetDir)
-    return targetDir
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    return target_dir
 
 def jhbuildCmd():
-    return ["jhbuild", "-f", jhbuildrc_path, "run"]
+    return ["jhbuild", "-f", jhbuildrc, "run"]
 
 def runCMake(options):
-    workingDir = ensureBuildDir(options)
-    os.chdir(workingDir)
+    working_dir = ensureBuildDir(options)
+    os.chdir(working_dir)
 
     cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
     # Enable threaded compositor always for now
@@ -52,7 +47,7 @@ def runCMake(options):
     cmakeargs.append("-DUSE_GSTREAMER_GL=ON")
     #cmakeargs.append("-DUSE_REDIRECTED_XCOMPOSITE_WINDOW=OFF")
 
-    cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + installDir)
+    cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + config_helper.install_dir)
     cmakeargs.append("-DCMAKE_INSTALL_LIBDIR=lib")
 
     if options.debug:
@@ -62,20 +57,20 @@ def runCMake(options):
     else:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Release")
 
-    cmakeCommand = jhbuildCmd() + ["cmake", sourceDir] + cmakeargs
+    cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
     setEnvForClang()
     call(cmakeCommand)
 
 def installWebKitGtk(options):
-    workingDir = ensureBuildDir(options)
-    os.chdir(workingDir)
-    installCommand = jhbuildCmd() + ["cmake", "-P", workingDir + '/cmake_install.cmake']
+    working_dir = ensureBuildDir(options)
+    os.chdir(working_dir)
+    installCommand = jhbuildCmd() + ["cmake", "-P", working_dir + '/cmake_install.cmake']
     call(installCommand)
 
 def buildWebKitGtk(options):
     runCMake(options)
-    workingDir = ensureBuildDir(options)
-    os.chdir(workingDir)
+    working_dir = ensureBuildDir(options)
+    os.chdir(working_dir)
 
     setEnvForClang()
     buildCommand = jhbuildCmd() + ["ninja-build", "-j38"]
@@ -84,13 +79,13 @@ def buildWebKitGtk(options):
 def buildFinished():
     elapsedTime = round(time.time() - startTime)
     if elapsedTime > 30:
-      call(["/usr/bin/aplay", "-q", buildFinishedSound])
+      call(["/usr/bin/aplay", "-q", config_helper.build_finished_sound_file])
 
 def setEnvForClang():
     os.environ["CC"]="clang"
     os.environ["CXX"]="clang++"
     os.environ["CCACHE_CPP2"]="yes"
-    os.environ["ICECC_VERSION"]=icecc_clang_env
+    os.environ["ICECC_VERSION"]=config_helper.config['icecc_version']
 
 def main(argv):
     argParser = argparse.ArgumentParser(description='Build webkit using custom jhbuild env')
