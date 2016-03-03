@@ -2,17 +2,40 @@
 
 from build_config import ConfigHelper
 import sys
+import psutil
 from subprocess import call
+from subprocess import check_output
+import re
+import atexit
+import os
 
 config_helper = ConfigHelper()
 jhbuildrc = config_helper.jhbuildrc
 
+dbus_pid = None
+dbus_address = None
+
+def launch_dconf():
+  dbus_cmd = ["dbus-launch", "--sh-syntax"]
+  output = check_output(dbus_cmd)
+  dbus_pid = int(re.search(r'DBUS_SESSION_BUS_PID=([0-9]+)', output).group(1))
+  dbus_address = re.search(r'DBUS_SESSION_BUS_ADDRESS=\'(.*)\'', output).group(1)
+  print "Launch dbus - pid:" + str(dbus_pid) + " address=" + dbus_address
+  atexit.register(close_dbus, pid=dbus_pid, address=dbus_address)
+
+  os.environ["GSETTINGS_BACKEND"]="dconf"
+
+def close_dbus(pid, address):
+  print "Terminating dbus - pid:" + str(pid) + " address=" + address
+  psutil.Process(dbus_pid).terminate()
+
 def main(argv):
+  launch_dconf()
   arguments = argv[1:]
   jhbuild_cmd = ["jhbuild", "-f", jhbuildrc] + arguments
   call(jhbuild_cmd)
 
 if __name__ == '__main__':
-    main(sys.argv)
+  main(sys.argv)
 
 
