@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+from build_config import ConfigHelper
+import sys
+from subprocess import call
+
+config_helper = ConfigHelper()
+jhbuildrc = config_helper.jhbuildrc
+
+def main(argv):
+  arguments = argv[1:]
+  jhbuild_cmd = ["jhbuild", "-f", jhbuildrc] + arguments
+  call(jhbuild_cmd)
+
+if __name__ == '__main__':
+    main(sys.argv)
+
+
