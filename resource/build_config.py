@@ -1,6 +1,8 @@
 
 import json
 import os.path
+import os
+import sys
 
 class ConfigHelper:
 
@@ -11,9 +13,10 @@ class ConfigHelper:
 
   def __init__(self):
     self.resource_dir = os.path.dirname(os.path.realpath(__file__))
-    self.workspace_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../')
+    self.workspace_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
     self.build_dir = os.path.join(self.workspace_dir, 'out/')
     self.install_dir = os.path.join(self.workspace_dir, 'Dependencies/Root')
+    self.jhbuild_src_dir = os.path.join(self.workspace_dir, 'Dependencies/Source')
     self.config_file = os.path.join(self.resource_dir, "config.json")
     self.build_finished_sound_file = os.path.join(self.resource_dir, "build_finished.wav")
     self.llvm_install_prefix = '/usr/local'

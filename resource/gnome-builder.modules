@@ -1,0 +1,53 @@
+<?xml version="1.0"?><!--*- mode: nxml; indent-tabs-mode: nil -*-->
+<!DOCTYPE moduleset SYSTEM "moduleset.dtd">
+<?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
+<!-- vim:set ts=2 expandtab: -->
+<moduleset>
+  <repository type="git" name="git.gnome.org"
+      href="git://git.gnome.org/"/>
+  <repository type="tarball" name="tarball.github.com"
+    href="https://github.com/"/>
+
+  <cmake id="libgit2"
+         cmakeargs="-DTHREADSAFE:BOOL=1 -DCMAKE_BUILD_TYPE=Release">
+    <branch repo="tarball.github.com"
+            module="libgit2/libgit2/archive/v${version}.tar.gz"
+            version="0.23.4"
+            hash="sha256:c7f5e2d7381dbc4d7e878013d14f9993ae8a41bd23f032718e39ffba57894029"
+            checkoutdir="libgit2-${version}">
+    </branch>
+    <dependencies>
+      <dep package="libssh2"/>
+    </dependencies>
+  </cmake>
+
+  <autotools id="libgit2-glib">
+    <branch repo="git.gnome.org"/>
+    <dependencies>
+      <dep package="libgit2"/>
+      <dep package="glib"/>
+      <dep package="gobject-introspection"/>
+    </dependencies>
+  </autotools>
+
+  <autotools id="gnome-builder">
+    <branch repo="git.gnome.org"/>
+    <dependencies>
+      <dep package="devhelp"/>
+      <dep package="gjs"/>
+      <dep package="glib"/>
+      <dep package="libgit2"/>
+      <dep package="gnome-code-assistance"/>
+      <dep package="gtk+"/>
+      <dep package="gtksourceview"/>
+      <dep package="libgit2-glib"/>
+      <dep package="libpeas"/>
+      <dep package="librsvg"/>
+      <dep package="pygobject"/>
+      <dep package="uncrustify"/>
+      <dep package="vala"/>
+      <dep package="vte"/>
+    </dependencies>
+  </autotools>
+
+</moduleset>

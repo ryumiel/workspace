@@ -8,6 +8,6 @@ llvm/
 out/
 resource/__init__.pyc
 resource/config.json
-resource/config.pyc
+resource/build_config.pyc
 resource/icecc_release*
 

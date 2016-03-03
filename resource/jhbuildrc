@@ -14,18 +14,19 @@
 # A list of the modules to build.  Defaults to the GNOME core and tested apps.
 # modules = [ 'meta-gnome-core', 'meta-gnome-apps-tested' ]
 __basedir = os.path.dirname(os.path.realpath(__file__))
-moduleset = [ 'gnome-suites-core-3.20', os.path.join(__basedir,'webkit-devel.modules') ]
+moduleset = [ 'gnome-suites-core-3.20', os.path.join(__basedir,'webkit-devel.modules'), os.path.join(__basedir,'gnome-builder.modules') ]
 
 # Or to build the old GNOME 2.32:
 # moduleset = 'gnome2/gnome-2.32'
 # modules = ['meta-gnome-desktop']
 modules = [ 'meta-webkit-devel' ]
 
+__workdir = os.path.abspath(os.path.join(__basedir,'../Dependencies'))
 # what directory should the source be checked out to?
-checkoutroot = os.path.join(__basedir,'../Dependencies/Source')
+checkoutroot = os.path.join(__workdir,'Source/')
 
 # the prefix to configure/install modules to (must have write access)
-prefix = os.path.join(__basedir,'../Dependencies/Root')
+prefix = os.path.join(__workdir,'Root/')
 
 # custom CFLAGS / environment pieces for the build
 # os.environ['CFLAGS'] = '-Wall -g -O0'
