@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from resource.build_config import ConfigHelper
+from build_config import ConfigHelper
 import sys, argparse
 from subprocess import call
 from subprocess import check_call
@@ -11,7 +11,7 @@ import time
 startTime = time.time()
 config_helper = ConfigHelper()
 
-jhbuildrc = os.path.join(config_helper.resource_dir, "jhbuildrc")
+jhbuildrc = config_helper.jhbuildrc
 
 webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitGtk/')
 

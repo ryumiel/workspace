@@ -21,12 +21,12 @@ moduleset = [ 'gnome-suites-core-3.20', os.path.join(__basedir,'webkit-devel.mod
 # modules = ['meta-gnome-desktop']
 modules = [ 'meta-webkit-devel' ]
 
-__workdir = os.path.abspath(os.path.join(__basedir,'../Dependencies'))
+__workdir = os.path.abspath(os.path.join(__basedir,os.pardir))
 # what directory should the source be checked out to?
-checkoutroot = os.path.join(__workdir,'Source/')
+checkoutroot = os.path.join(__workdir,'Dependencies/Source/')
 
 # the prefix to configure/install modules to (must have write access)
-prefix = os.path.join(__workdir,'Root/')
+prefix = os.path.join(__workdir,'Dependencies/Root/')
 
 # custom CFLAGS / environment pieces for the build
 # os.environ['CFLAGS'] = '-Wall -g -O0'

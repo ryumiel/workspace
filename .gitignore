@@ -6,8 +6,7 @@ gstreamer/
 jhbuild/
 llvm/
 out/
-resource/__init__.pyc
-resource/config.json
-resource/build_config.pyc
-resource/icecc_release*
+bin/config.json
+bin/build_config.pyc
+bin/resource/icecc_release*
 

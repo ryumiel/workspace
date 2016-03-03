@@ -30,7 +30,7 @@
     </dependencies>
   </autotools>
 
-  <autotools id="gnome-builder">
+  <autotools id="gnome-builder" autogenargs="--enable-optimizations">
     <branch repo="git.gnome.org"/>
     <dependencies>
       <dep package="devhelp"/>
