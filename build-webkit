@@ -21,6 +21,7 @@ buildFinishedSound = os.path.join(workspaceDir, "resource/build_finished.wav")
 startTime = time.time()
 
 icecc_clang_env = os.path.join(workspaceDir, "resource/icecc_clang_3.8_env.tar.gz")
+jhbuildrc_path = os.path.join(workspaceDir, "resource/jhbuildrc")
 
 def ensureBuildDir(options):
     if options.debug:
@@ -37,7 +38,7 @@ def ensureBuildDir(options):
     return targetDir
 
 def jhbuildCmd():
-    return ["jhbuild", "-f", os.path.join(workspaceDir,'jhbuildrc'), "run"]
+    return ["jhbuild", "-f", jhbuildrc_path, "run"]
 
 def runCMake(options):
     workingDir = ensureBuildDir(options)
@@ -46,6 +47,7 @@ def runCMake(options):
     cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
     # Enable threaded compositor always for now
     cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=ON")
+    cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=ON")
     # Enable Gstreamer GL always for now
     cmakeargs.append("-DUSE_GSTREAMER_GL=ON")
     #cmakeargs.append("-DUSE_REDIRECTED_XCOMPOSITE_WINDOW=OFF")

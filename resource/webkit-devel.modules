@@ -3,7 +3,9 @@
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <!-- vim:set ts=2 expandtab: -->
 <moduleset>
-  <repository type="git" name="wayland" default="yes"
+  <repository type="git" name="git.gnome.org"
+      href="git://git.gnome.org/"/>
+  <repository type="git" name="wayland"
       href="git://anongit.freedesktop.org/git/wayland"/>
   <repository type="git" name="git.freedesktop.org"
       href="git://anongit.freedesktop.org/"/>
@@ -133,6 +135,25 @@
     <autogenargs value="--enable-gl=yes --enable-egl=yes --enable-glx=yes"/>
     <branch repo="git.freedesktop.org">
     </branch>
+  </autotools>
+
+  <autotools id="gnome-builder">
+    <branch repo="git.gnome.org"/>
+    <dependencies>
+      <dep package="devhelp"/>
+      <dep package="gjs"/>
+      <dep package="glib"/>
+      <dep package="gnome-code-assistance"/>
+      <dep package="gtk+"/>
+      <dep package="gtksourceview"/>
+      <dep package="libgit2-glib"/>
+      <dep package="libpeas"/>
+      <dep package="librsvg"/>
+      <dep package="pygobject"/>
+      <dep package="uncrustify"/>
+      <dep package="vala"/>
+      <dep package="vte"/>
+    </dependencies>
   </autotools>
 
   <metamodule id="meta-gstreamer">

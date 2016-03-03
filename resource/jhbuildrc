@@ -22,10 +22,10 @@ moduleset = [ 'gnome-suites-core-3.20', os.path.join(__basedir,'webkit-devel.mod
 modules = [ 'meta-webkit-devel' ]
 
 # what directory should the source be checked out to?
-checkoutroot = os.path.join(__basedir,'Dependencies/Source')
+checkoutroot = os.path.join(__basedir,'../Dependencies/Source')
 
 # the prefix to configure/install modules to (must have write access)
-prefix = os.path.join(__basedir,'Dependencies/Root')
+prefix = os.path.join(__basedir,'../Dependencies/Root')
 
 # custom CFLAGS / environment pieces for the build
 # os.environ['CFLAGS'] = '-Wall -g -O0'
@@ -37,3 +37,7 @@ autogenargs='--disable-static --disable-gtk-doc'
 # A string listing additional arguments to be passed to make.
 # Set makeargs to 'V=1' for verbose build output.
 makeargs = '-j38'
+
+# Skip WebKit from the build
+skip = [ 'WebKit' ]
+
