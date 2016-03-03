@@ -30,8 +30,11 @@ def close_dbus(pid, address):
   psutil.Process(dbus_pid).terminate()
 
 def main(argv):
-  launch_dconf()
   arguments = argv[1:]
+
+  if arguments[0] == 'run':
+    launch_dconf()
+
   jhbuild_cmd = ["jhbuild", "-f", jhbuildrc] + arguments
   call(jhbuild_cmd)
 
