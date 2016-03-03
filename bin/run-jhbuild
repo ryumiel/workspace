@@ -23,6 +23,8 @@ def launch_dconf():
   print "Launch dbus - pid:" + str(dbus_pid) + " address=" + dbus_address
   atexit.register(close_dbus, pid=dbus_pid, address=dbus_address)
 
+  os.environ["GTK_IM_MODULE"]="ibus"
+  os.environ["XMODIFIERS"]="@im=ibus"
   os.environ["GSETTINGS_BACKEND"]="dconf"
 
 def close_dbus(pid, address):
