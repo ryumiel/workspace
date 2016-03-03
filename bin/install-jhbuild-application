@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+from build_config import ConfigHelper
+import sys, shutil, os
+from subprocess import call
+
+config_helper = ConfigHelper()
+
+install_dir = os.path.expanduser('~/.local/share/applications/')
+src_applications_dir = os.path.join(config_helper.resource_dir, 'applications/')
+
+src_list = [
+  'epiphany-browser-dev.desktop', 'org.gnome.Builder-dev.desktop',
+]
+
+def copy_desktop_file_to_local(src_file):
+  dest_file = os.path.join(install_dir, src_file)
+  shutil.copy(os.path.join(src_applications_dir, src_file), dest_file)
+
+def main(argv):
+  for src in src_list:
+    copy_desktop_file_to_local(src)
+
+  call(["update-desktop-database", install_dir])
+  call(["xdg-mime", "default", "epiphany-browser-dev.desktop", "x-scheme-handler/http", "x-scheme-handler/https", "text/html", "application/xhtml+xml", "text/xml"])
+
+if __name__ == '__main__':
+  main(sys.argv)
+
+

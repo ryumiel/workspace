@@ -1,0 +1,19 @@
+[Desktop Entry]
+Name=Web (Dev)
+GenericName=Web Browser (Dev)
+X-GNOME-FullName=Epiphany Web Browser (Dev)
+Comment=Browse the web
+Keywords=web;browser;internet;
+Exec=/home/yoon/webkit/bin/run-jhbuild run epiphany %U
+StartupNotify=true
+Terminal=false
+Type=Application
+Icon=/home/yoon/webkit/bin/resource/applications/epiphany-browser-dev-256x256.png
+Categories=Network;GNOME;GTK;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;multipart/related;application/x-mimearchive;message/rfc822;
+Actions=Incognito;
+
+[Desktop Action Incognito]
+Name=New Incognito Window
+Exec=/home/yoon/webkit/bin/run-jhbuild run epiphany --incognito-mode
+Icon=/home/yoon/webkit/bin/resource/applications/epiphany-browser-dev-incognito-256x256.png
