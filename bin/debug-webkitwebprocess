@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+from build_config import ConfigHelper
+import sys
+import psutil
+from subprocess import call
+from subprocess import check_output
+import re
+import atexit
+import os
+import datetime
+
+config_helper = ConfigHelper()
+jhbuildrc = config_helper.jhbuildrc
+
+debug_build_dir = os.path.join(config_helper.build_dir, 'Debug/')
+release_build_dir = os.path.join(config_helper.build_dir, 'Release/')
+
+def process_info_str(proc):
+  info_str = "pid: " + str(proc.pid)
+  info_str += " ctime: " + datetime.datetime.fromtimestamp( proc.create_time()).strftime("%H:%M:%S")
+
+  if proc.parent() is not None:
+    info_str += " pname: " + proc.parent().name()
+  return info_str
+
+def select_target_process(proc_list):
+  if len(proc_list) == 1:
+    return proc_list[0]['proc']
+
+  for proc in proc_list:
+    proc['desc'] = process_info_str(proc['proc'])
+
+  for proc in proc_list:
+    print str(proc['sid']) + " : " + proc['desc']
+  choice = raw_input('Enter your choice : ')
+  choice = int(choice)
+
+  proc_list = filter(lambda x: x['sid'] == choice, proc_list)
+  if len(proc_list) is not 1:
+    print "Unable to select unique process"
+    sys.exit(2)
+  return proc_list[0]['proc']
+
+def find_process(proc_name):
+  process_list = []
+  mkDict = lambda sid, proc, desc: {
+    'sid' : sid,
+    'proc': proc,
+    'desc': desc
+  }
+
+  i = 0;
+  for proc in psutil.process_iter():
+    if proc.name() == proc_name:
+      process_list.append(mkDict(i, proc, ""))
+      i += 1
+  return process_list
+
+
+def main(argv):
+  webprocess_name = 'WebKitWebProcess'
+
+  print "Finding " + webprocess_name + "..."
+  process_list = find_process(webprocess_name)
+  if len(process_list) < 1:
+    print "Unable to find target process"
+    sys.exit(0)
+
+  proc = select_target_process(process_list)
+  gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
+  gdb_cmd = ["/usr/bin/gdb", "-tui", "-init-command", gdbinit, "-pid", str(proc.pid)]
+  call(gdb_cmd)
+
+if __name__ == '__main__':
+  main(sys.argv)
+
+
