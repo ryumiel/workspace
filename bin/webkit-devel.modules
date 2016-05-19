@@ -142,9 +142,7 @@
       <dep package="gst-plugins-good"/>
       <dep package="gst-plugins-bad"/>
       <dep package="gst-libav"/>
-  <!-- Skip this.
       <dep package="gstreamer-vaapi"/>
-  -->
     </dependencies>
   </metamodule>
 
