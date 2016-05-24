@@ -1,0 +1,21 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+# Additional definitions for Development.
+if [ -f ~/.bash_development ]; then
+    source ~/.bash_development
+fi
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+
+export PATH
+
+

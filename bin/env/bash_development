@@ -1,0 +1,63 @@
+# git functionality
+function parse_git_branch {
+  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+function proml {
+  local        BLUE="\[\033[0;34m\]"
+  local         RED="\[\033[0;31m\]"
+  local   LIGHT_RED="\[\033[1;31m\]"
+  local       GREEN="\[\033[0;32m\]"
+  local LIGHT_GREEN="\[\033[1;32m\]"
+  local       WHITE="\[\033[1;37m\]"
+  local  LIGHT_GRAY="\[\033[0;37m\]"
+  case $TERM in
+    xterm*)
+    TITLEBAR='\[\033]0;\u@\h:\w\007\]'
+    ;;
+    *)
+    TITLEBAR=""
+    ;;
+  esac
+
+PS1="${TITLEBAR}\
+$BLUE[$RED\$(date +%H:%M)$BLUE]\
+$BLUE[$RED\u@\h:\w$GREEN\$(parse_git_branch)$BLUE]\
+\[\033[00m\]\$ "
+PS2='> '
+PS4='+ '
+
+if [ -n "$UNDER_JHBUILD" ]; then
+    PS1="$BLUE[$RED\[jhbuild\]$BLUE]$PS1"
+fi
+}
+proml
+
+alias pc='python -Qnew -ic "from __future__ import division; from math import *"'
+
+# Set Development Environment.
+PATH=$PATH:$HOME/webkit/bin:$HOME/webkit/bin/depot_tools:$HOME/bin/wpe
+
+# Chromium
+export GYP_GENERATORS='ninja'
+
+# Custom Tool
+export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
+
+# To use icecream, we need to masquarade(?) compilers
+# or to disable it, we need to set it the end of path envs.
+# PATH=`echo $PATH | /bin/sed -e 's/\/usr\/libexec\/icecc\/bin://'`
+
+
+#export LC_CTYPE=en_US.UTF-8
+#export LC_ALL=en_US.UTF-8
+#export DISPLAY=:0
+
+# Connect to the Igalian Server
+alias connect-repo='ssh -C -L localhost:1234:big-repo.local.igalia.com:22 ghwang@igalia.com -p 6789 -N'
+alias connect-erp='ssh -L localhost:8070:openerp.local.igalia.com:8070 -o TCPKeepAlive=yes ghwang@igalia.com -p 6789 -N'
+alias connect-tunnel='/home/ryumiel/workspace/Utils/sshuttle/sshuttle -r igalia.com 0.0.0.0/0 -vv --dns'
+alias connect-bluestreak='ssh -C -L 1234:stash.bluestreaktech.com:22 ghwang@igalia.com -p 6789 -N'
+
+source /home/yoon/webkit/WebKitGtk/Tools/Scripts/webkit-tools-completion.sh
+

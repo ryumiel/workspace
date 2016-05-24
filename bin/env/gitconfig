@@ -1,0 +1,34 @@
+[core]
+    editor = vim
+    whitespace = blank-at-eol, tab-in-indent
+[color]
+    ui = auto
+    diff = true
+    grep = auto
+    status = auto
+[color "diff"]
+    whitespace = red reverse
+[user]
+    name = Gwang Yoon Hwang
+    email = yoon@igalia.com
+[merge]
+    tool = meld
+    conflictstyle = diff3
+[mergetool "mymeld"]
+    cmd = meld --diff $BASE $LOCAL --diff $BASE $REMOTE --diff $LOCAL $BASE $REMOTE --output $MERGED
+[mergetool]
+	keepBackup = false
+[alias]
+    meld = !/home/ryumiel/workspace/Utils/git-meld/git-meld.pl
+    pastebinit = !sh -c 'git format-patch --stdout -1 | pastebinit -f diff' -
+[giggle]
+    main-window-maximized = false
+    main-window-geometry = 1427x1186+387+188
+    history-view-vpane-position = 358
+    main-window-view = HistoryView
+[bugzilla]
+    username = yoon@igalia.com
+[push]
+    default = current
+[commit]
+    template = /home/yoon/webkit/bin/env/gitmessage.txt
