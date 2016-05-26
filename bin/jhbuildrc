@@ -37,7 +37,7 @@ autogenargs='--disable-static --disable-gtk-doc'
 
 # A string listing additional arguments to be passed to make.
 # Set makeargs to 'V=1' for verbose build output.
-makeargs = '-j38'
+makeargs = '-j7'
 
 # Skip WebKit from the build
 skip = [ 'WebKit' ]
