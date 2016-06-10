@@ -42,3 +42,8 @@ makeargs = '-j7'
 # Skip WebKit from the build
 skip = [ 'WebKit' ]
 
+# To workaround the DRI3 problem with vaapi
+# https://bugzilla.gnome.org/show_bug.cgi?id=765174
+# https://bugs.freedesktop.org/show_bug.cgi?id=71759
+os.environ['LIBGL_DRI3_DISABLE'] = '1'
+
