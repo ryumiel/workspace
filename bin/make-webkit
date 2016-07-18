@@ -53,7 +53,7 @@ def runCMake(options):
     if options.debug:
         # Turn of debug fission for icecc
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
-        cmakeargs.append("-DDEBUG_FISSION=ON")
+        cmakeargs.append("-DDEBUG_FISSION=OFF")
     else:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Release")
 
@@ -73,7 +73,7 @@ def buildWebKitGtk(options):
     os.chdir(working_dir)
 
     setEnvForClang()
-    buildCommand = jhbuildCmd() + ["ninja-build"]
+    buildCommand = jhbuildCmd() + ["ninja-build", "-j38"]
     call(buildCommand)
 
 def buildFinished():
