@@ -69,7 +69,7 @@ def main(argv):
 
   proc = select_target_process(process_list)
   gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
-  gdb_cmd = ["cgdb", "--", "-init-command", gdbinit, "-pid", str(proc.pid)]
+  gdb_cmd = ["gdb", "-init-command", gdbinit, "-pid", str(proc.pid)]
   call(gdb_cmd)
 
 if __name__ == '__main__':
