@@ -28,6 +28,7 @@ repoList = [
   mkDict('llvm/', 'git@github.com:llvm-mirror/llvm.git'),
   mkDict('llvm/tools/clang/', 'git@github.com:llvm-mirror/clang.git'),
   mkDict('llvm/tools/clang/tools/extra', 'git@github.com:llvm-mirror/clang-tools-extra.git'),
+  mkDict('llvm/tools/lldb/', 'git@github.com:llvm-mirror/lldb.git'),
   mkDict('llvm/project/compiler-rt/', 'git@github.com:llvm-mirror/compiler-rt.git'),
   mkDict('llvm/project/libcxx/', 'git@github.com:llvm-mirror/libcxx.git'),
 ]
@@ -67,6 +68,8 @@ def ensureRepo(repo):
 def selectBranches(repo):
   git = repo['gitRepo']
   origin = git.remote()
+  origin.fetch(progress=GitProgress())
+
   if git.head.commit != origin.refs[version].commit:
     origin.refs[version].checkout(force = True, b=version)
     print origin.refs[version]
