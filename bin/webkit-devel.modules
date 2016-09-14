@@ -3,6 +3,7 @@
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <!-- vim:set ts=2 expandtab: -->
 <moduleset>
+  <repository type="tarball" name="ftp.gnu.org" href="http://ftp.gnu.org/gnu/"/>
   <repository type="git" name="wayland"
       href="git://anongit.freedesktop.org/git/wayland"/>
   <repository type="git" name="git.freedesktop.org"
@@ -11,10 +12,19 @@
   <repository type="git" name="yoon.gstreamer"
       href="/home/yoon/webkit/gstreamer"/>
 
+  <autotools id="gettext" autogen-sh="configure">
+    <branch repo="ftp.gnu.org"
+            module="gettext/gettext-0.19.8.tar.gz" version="0.19.8"
+            size="19977131"
+            hash="sha256:3da4f6bd79685648ecf46dab51d66fcdddc156f41ed07e580a696a38ac61d48f">
+    </branch>
+  </autotools>
+
 
   <!-- Platform metamodule -->
   <metamodule id="meta-epiphany-deps-except-webkit">
     <dependencies>
+      <dep package="gettext"/>
       <dep package="json-glib"/>
       <dep package="appstream-glib"/>
       <dep package="intltool"/>
