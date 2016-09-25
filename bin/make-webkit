@@ -59,7 +59,7 @@ def runCMake(options):
         cmakeargs.append("-DCMAKE_BUILD_TYPE=RelWithDebInfo")
 
     cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
-    setEnvForClang()
+    #setEnvForClang()
     call(cmakeCommand)
 
 def installWebKitGtk(options):
@@ -73,7 +73,7 @@ def buildWebKitGtk(options):
     working_dir = ensureBuildDir(options)
     os.chdir(working_dir)
 
-    setEnvForClang()
+    #setEnvForClang()
     buildCommand = jhbuildCmd() + ["ninja-build", "-j38"]
     call(buildCommand)
 
