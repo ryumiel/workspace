@@ -1,0 +1,1 @@
+WAYLAND_DISPLAY=wpe-test XDG_RUNTIME_DIR=/tmp ./Tools/Scripts/run-wpe

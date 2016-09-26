@@ -1,0 +1,1 @@
+XDG_RUNTIME_DIR=/tmp run-jhbuild run weston --scale=2 --socket=wpe-test
