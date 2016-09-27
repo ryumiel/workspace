@@ -45,9 +45,9 @@ export GYP_GENERATORS='ninja'
 # Custom Tool
 export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
 
-# To use icecream, we need to masquarade(?) compilers
-# or to disable it, we need to set it the end of path envs.
-# PATH=`echo $PATH | /bin/sed -e 's/\/usr\/libexec\/icecc\/bin://'`
+# To use icecream with ccache, we need to remove icecc from the path
+# to prevent icecream's recursive invoketion.
+PATH=`echo $PATH | /bin/sed -e 's/\/usr\/libexec\/icecc\/bin://'`
 
 
 #export LC_CTYPE=en_US.UTF-8
