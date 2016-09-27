@@ -37,6 +37,7 @@ alias pc='python -Qnew -ic "from __future__ import division; from math import *"
 
 # Set Development Environment.
 PATH=$PATH:$HOME/webkit/bin:$HOME/webkit/bin/depot_tools:$HOME/bin/wpe
+export CCACHE_PREFIX=icecc
 
 # Chromium
 export GYP_GENERATORS='ninja'
