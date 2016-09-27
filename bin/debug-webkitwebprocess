@@ -22,6 +22,8 @@ def process_info_str(proc):
 
   if proc.parent() is not None:
     info_str += " pname: " + proc.parent().name()
+
+  info_str += " exe: " + proc.exe()
   return info_str
 
 def select_target_process(proc_list):
