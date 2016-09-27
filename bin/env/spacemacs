@@ -256,7 +256,7 @@ you should place your code here."
               c-c++-default-mode-for-headers 'c++-mode)))
    (setq-default dotspacemacs-configuration-layers
      '((c-c++ :variables c-c++-enable-clang-support t)))
-   (c-add-style "WebKit" '("Google"
+   (c-add-style "WebKit" '("k&r"
                         (c-basic-offset . 4)
                         (c-offsets-alist . ((innamespace . 0)
                                             (access-label . -)
