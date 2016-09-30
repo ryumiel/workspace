@@ -3,7 +3,8 @@
 from build_config import ConfigHelper
 import sys, argparse
 from subprocess import call
-from subprocess import check_call
+from subprocess import check_output
+import subprocess
 import os.path
 import atexit
 import time
@@ -59,7 +60,6 @@ def runCMake(options):
         cmakeargs.append("-DCMAKE_BUILD_TYPE=RelWithDebInfo")
 
     cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
-    #setEnvForClang()
     call(cmakeCommand)
 
 def installWebKitGtk(options):
@@ -69,12 +69,31 @@ def installWebKitGtk(options):
     call(installCommand)
 
 def buildWebKitGtk(options):
+    try:
+      ret = check_output(["/usr/bin/systemctl", "is-active", "iceccd.service"]).rstrip();
+    except subprocess.CalledProcessError, e:
+      ret = "unknown"
+
+    print ret
+    if ret == "active":
+      isIceccdActive = True
+    elif ret == "unknown":
+      isIceccdActive = False
+    else:
+      print "Error: Cannot determine the status of iceccd"
+      exit(0)
+
+    setEnvForClang(False, isIceccdActive)
+    if isIceccdActive:
+      numOfJob = 38
+    else:
+      numOfJob = 8
+
     runCMake(options)
     working_dir = ensureBuildDir(options)
     os.chdir(working_dir)
 
-    #setEnvForClang()
-    buildCommand = jhbuildCmd() + ["ninja-build", "-j38"]
+    buildCommand = jhbuildCmd() + ["ninja-build", "-j" + str(numOfJob)]
     call(buildCommand)
 
 def buildFinished():
@@ -82,11 +101,15 @@ def buildFinished():
     if elapsedTime > 30:
       call(["/usr/bin/aplay", "-q", config_helper.build_finished_sound_file])
 
-def setEnvForClang():
-    os.environ["CC"]="clang"
-    os.environ["CXX"]="clang++"
-    os.environ["CCACHE_CPP2"]="yes"
-    os.environ["ICECC_VERSION"]=config_helper.config['icecc_version']
+def setEnvForClang(isClang, isIcecc):
+    if isClang:
+      os.environ["CC"]="clang"
+      os.environ["CXX"]="clang++"
+      os.environ["CCACHE_CPP2"]="yes"
+
+    if isIcecc:
+      os.environ["CCACHE_PREFIX"]="icecc"
+      os.environ["ICECC_VERSION"]=config_helper.config['icecc_version']
 
 def main(argv):
     argParser = argparse.ArgumentParser(description='Build webkit using custom jhbuild env')
