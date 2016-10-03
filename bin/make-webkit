@@ -55,9 +55,10 @@ def runCMake(options):
     if options.debug:
         # Turn of debug fission for icecc
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
-        cmakeargs.append("-DDEBUG_FISSION=OFF")
+        cmakeargs.append("-DDEBUG_FISSION=ON")
     else:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=RelWithDebInfo")
+        cmakeargs.append("-DDEBUG_FISSION=ON")
 
     cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
     call(cmakeCommand)
