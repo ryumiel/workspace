@@ -55,10 +55,10 @@ def runCMake(options):
     if options.debug:
         # Turn of debug fission for icecc
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
-        cmakeargs.append("-DDEBUG_FISSION=ON")
+        cmakeargs.append("-DDEBUG_FISSION=OFF")
     else:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=RelWithDebInfo")
-        cmakeargs.append("-DDEBUG_FISSION=ON")
+        cmakeargs.append("-DDEBUG_FISSION=OFF")
 
     cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
     call(cmakeCommand)
@@ -84,11 +84,11 @@ def buildWebKitGtk(options):
       print "Error: Cannot determine the status of iceccd"
       exit(0)
 
-    setEnvForClang(False, isIceccdActive)
+    setEnvForClang(True, isIceccdActive)
     if isIceccdActive:
       numOfJob = 38
     else:
-      numOfJob = 8
+      numOfJob = 32
 
     runCMake(options)
     working_dir = ensureBuildDir(options)
