@@ -106,6 +106,7 @@ def runCMake():
   cmakeargs.append("-DLLVM_ENABLE_ASSERTIONS=OFF")
   cmakeargs.append("-DLLVM_INCLUDE_DOCS=OFF")
   cmakeargs.append("-DLLVM_INCLUDE_TESTS=OFF")
+  cmakeargs.append("-DLLVM_LIBDIR_SUFFIX=64")
 
   cmakeCommand = ["cmake", llvm_src_dir] + cmakeargs
   setEnvForLLVMBuild()
@@ -139,7 +140,7 @@ def createICECCEnv():
 
 def main(argv):
   atexit.register(buildFinished)
-  checkoutLLVM()
+  #checkoutLLVM()
   runCMake()
   buildLLVM()
   installLLVM()
