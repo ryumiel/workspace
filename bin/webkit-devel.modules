@@ -8,6 +8,10 @@
       href="git://anongit.freedesktop.org/git/wayland"/>
   <repository type="git" name="git.freedesktop.org"
       href="git://anongit.freedesktop.org/"/>
+  <repository type="git" name="github.com"
+      href="https://github.com"/>
+  <repository type="git" name="gstreamer.freedesktop.org"
+      href="git://anongit.freedesktop.org/gstreamer/"/>
 
   <repository type="git" name="yoon.gstreamer"
       href="/home/yoon/webkit/gstreamer"/>
@@ -20,6 +24,11 @@
     </branch>
   </autotools>
 
+  <autotools id="cairo">
+    <autogenargs value="--enable-gl=yes --enable-egl=yes --enable-glx=yes"/>
+    <branch repo="git.freedesktop.org">
+    </branch>
+  </autotools>
 
   <!-- Platform metamodule -->
   <metamodule id="meta-epiphany-deps-except-webkit">
@@ -97,52 +106,73 @@
     </dependencies>
   </autotools>
 
-  <autotools id="gstreamer" autogenargs="--disable-gtk-doc --disable-introspection --enable-debug">
-    <branch module="gstreamer" branch="master" repo="yoon.gstreamer" />
+  <autotools id="gstreamer" autogenargs="--disable-gtk-doc --enable-debug">
+    <branch module="gstreamer" tag="1.9.90" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-plugins-base"
              autogen-sh="autogen.sh"
-             autogenargs="--disable-examples --disable-gtk-doc --disable-introspection --enable-debug">
+             autogenargs="--disable-examples --disable-gtk-doc --enable-debug">
     <dependencies>
       <dep package="gstreamer"/>
     </dependencies>
-    <branch module="gst-plugins-base" branch="master" repo="yoon.gstreamer" />
+    <branch module="gst-plugins-base" tag="1.9.90" repo="gstreamer.freedesktop.org" />
   </autotools>
 
-  <autotools id="gst-plugins-good" autogenargs="--disable-examples --disable-soup --disable-gtk-doc --disable-introspection --enable-debug">
+  <autotools id="gst-plugins-good" autogenargs="--disable-examples --disable-soup --disable-gtk-doc --enable-debug">
     <dependencies>
       <dep package="gst-plugins-base"/>
     </dependencies>
 
-    <branch module="gst-plugins-good" branch="master" repo="yoon.gstreamer" />
+    <branch module="gst-plugins-good" tag="1.9.90" repo="gstreamer.freedesktop.org" />
   </autotools>
 
-  <autotools id="gst-plugins-bad" autogenargs="--disable-examples --disable-gtk-doc --disable-introspection --enable-debug">
+  <autotools id="gst-plugins-bad" autogenargs="--disable-examples --disable-gtk-doc --enable-debug">
     <dependencies>
       <dep package="gst-plugins-base"/>
     </dependencies>
-    <branch module="gst-plugins-bad" branch="master" revision="master" repo="yoon.gstreamer" />
+    <branch module="gst-plugins-bad" tag="1.9.90" revision="master" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-libav" autogenargs="--with-libav-extra-configure='--disable-yasm' --disable-gtk-doc">
     <dependencies>
       <dep package="gst-plugins-base"/>
     </dependencies>
-    <branch module="gst-libav" branch="master" repo="yoon.gstreamer" />
+    <branch module="gst-libav" tag="1.9.90" repo="gstreamer.freedesktop.org" />
   </autotools>
 
-  <autotools id="gstreamer-vaapi" autogenargs="--disable-gtk-doc --disable-introspection --enable-debug">
+  <autotools id="gstreamer-vaapi" autogenargs="--disable-gtk-doc --enable-debug">
     <dependencies>
       <dep package="gst-plugins-bad"/>
     </dependencies>
-    <branch module="gstreamer-vaapi" branch="master" revision="master" repo="yoon.gstreamer" />
+    <branch module="gstreamer-vaapi" tag="1.9.90" repo="gstreamer.freedesktop.org" />
   </autotools>
 
-  <autotools id="cairo">
-    <autogenargs value="--enable-gl=yes --enable-egl=yes --enable-glx=yes"/>
-    <branch repo="git.freedesktop.org">
-    </branch>
+  <autotools id="libnice" supports-non-srcdir-builds="no">
+   <dependencies>
+     <dep package="gstreamer"/>
+   </dependencies>
+   <branch repo="git.freedesktop.org" module="libnice/libnice.git" tag="0.1.13" checkoutdir="libnice"/>
+  </autotools>
+
+  <autotools id="openwebrtc" autogenargs="--enable-bridge=no --enable-owr-gst=yes">
+    <dependencies>
+      <dep package="gst-plugins-openwebrtc"/>
+      <dep package="libnice"/>
+     </dependencies>
+    <branch repo="github.com" module="EricssonResearch/openwebrtc.git" checkoutdir="openwebrtc" tag="c997bff14a9389582bc107e2aea7ce77fb700ed9"/>
+  </autotools>
+
+  <autotools id="gst-plugins-openwebrtc" supports-parallel-builds="no" supports-non-srcdir-builds="no" autogen-sh="./autogen.sh; ./configure">
+    <dependencies>
+      <dep package="gst-plugins-base"/>
+      <dep package="libusrsctp"/>
+    </dependencies>
+   <branch repo="github.com" module="EricssonResearch/openwebrtc-gst-plugins.git" checkoutdir="gst-plugins-openwebrtc" tag="f40f3302007da00f0bfb82065d705b62c2ea1afd"/>
+  </autotools>
+
+  <autotools id="libusrsctp" supports-non-srcdir-builds="no" autogen-sh="./bootstrap; ./configure --disable-warnings-as-errors">
+   <branch repo="github.com" module="sctplab/usrsctp.git" checkoutdir="usrsctp" tag="078ff3252f73327e0ac11d6fd5eff62011f6646e"/>
   </autotools>
 
   <metamodule id="meta-gstreamer">
@@ -153,6 +183,7 @@
       <dep package="gst-plugins-bad"/>
       <dep package="gst-libav"/>
       <dep package="gstreamer-vaapi"/>
+      <dep package="openwebrtc"/>
     </dependencies>
   </metamodule>
 
