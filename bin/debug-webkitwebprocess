@@ -3,8 +3,6 @@
 from build_config import ConfigHelper
 import sys
 import psutil
-from subprocess import call
-from subprocess import check_output
 import re
 import atexit
 import os
@@ -72,7 +70,7 @@ def main(argv):
   proc = select_target_process(process_list)
   gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
   gdb_cmd = ["gdb", "-init-command", gdbinit, "-pid", str(proc.pid)]
-  call(gdb_cmd)
+  print ' '.join(gdb_cmd)
 
 if __name__ == '__main__':
   main(sys.argv)
