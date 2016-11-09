@@ -107,6 +107,7 @@ def runCMake():
   cmakeargs.append("-DLLVM_INCLUDE_DOCS=OFF")
   cmakeargs.append("-DLLVM_INCLUDE_TESTS=OFF")
   cmakeargs.append("-DLLVM_LIBDIR_SUFFIX=64")
+  cmakeargs.append("-DLLVM_BUILD_LLVM_DYLIB=ON")
 
   cmakeCommand = ["cmake", llvm_src_dir] + cmakeargs
   setEnvForLLVMBuild()
@@ -114,7 +115,7 @@ def runCMake():
 
 def buildLLVM():
   os.chdir(llvm_build_dir)
-  buildCommand = ["ninja-build", "-j38"]
+  buildCommand = ["ninja-build", "-j32"]
   call(buildCommand)
 
 def installLLVM():
@@ -140,7 +141,7 @@ def createICECCEnv():
 
 def main(argv):
   atexit.register(buildFinished)
-  #checkoutLLVM()
+  checkoutLLVM()
   runCMake()
   buildLLVM()
   installLLVM()
