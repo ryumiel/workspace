@@ -43,7 +43,8 @@ def runCMake(options):
     cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
     # Enable threaded compositor always for now
     cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=ON")
-    cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=ON")
+    cmakeargs.append("-DENABLE_GLES2=ON")
+    cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=OFF")
     cmakeargs.append("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
     # Enable Gstreamer GL always for now
     cmakeargs.append("-DUSE_GSTREAMER_GL=ON")
@@ -57,7 +58,7 @@ def runCMake(options):
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
         cmakeargs.append("-DDEBUG_FISSION=OFF")
     else:
-        cmakeargs.append("-DCMAKE_BUILD_TYPE=RelWithDebInfo")
+        cmakeargs.append("-DCMAKE_BUILD_TYPE=Release")
         cmakeargs.append("-DDEBUG_FISSION=OFF")
 
     cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
@@ -84,7 +85,7 @@ def buildWebKitGtk(options):
       print "Error: Cannot determine the status of iceccd"
       exit(0)
 
-    setEnvForClang(True, isIceccdActive)
+    setEnvForClang(False, isIceccdActive)
     if isIceccdActive:
       numOfJob = 38
     else:
