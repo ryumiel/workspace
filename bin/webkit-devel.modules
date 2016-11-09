@@ -12,6 +12,8 @@
       href="https://github.com"/>
   <repository type="git" name="gstreamer.freedesktop.org"
       href="git://anongit.freedesktop.org/gstreamer/"/>
+  <repository type="tarball" name="people.freedesktop.org"
+      href="http://people.freedesktop.org"/>
 
   <repository type="git" name="yoon.gstreamer"
       href="/home/yoon/webkit/gstreamer"/>
@@ -173,6 +175,22 @@
 
   <autotools id="libusrsctp" supports-non-srcdir-builds="no" autogen-sh="./bootstrap; ./configure --disable-warnings-as-errors">
    <branch repo="github.com" module="sctplab/usrsctp.git" checkoutdir="usrsctp" tag="078ff3252f73327e0ac11d6fd5eff62011f6646e"/>
+  </autotools>
+
+  <autotools id="mesa"
+    autogen-template="%(srcdir)s/%(autogen-sh)s --prefix %(prefix)s/softGL %(autogenargs)s"
+    autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --with-egl-platforms=x11,wayland --with-dri-drivers=swrast --with-gallium-drivers=swrast">
+    <!--- WARNING: At jhbuildrc, when we define the path to the Gallium llvmpipe software rasterizer (needed by XvfbDriver),
+          we assume that the directory is named "Mesa". So, don't change the checkoutdir name even if you update the version.  -->
+    <branch module="/~brianp/mesa/11.2.2/mesa-11.2.2.tar.xz" version="11.2.2"
+            checkoutdir="Mesa"
+            repo="people.freedesktop.org"
+            hash="sha256:40e148812388ec7c6d7b6657d5a16e2e8dabba8b97ddfceea5197947647bdfb4">
+    </branch>
+    <dependencies>
+      <dep package="libdrm"/>
+      <dep package="wayland"/>
+    </dependencies>
   </autotools>
 
   <metamodule id="meta-gstreamer">
