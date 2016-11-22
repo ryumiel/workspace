@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
 from build_config import ConfigHelper
-import sys
+from git import RemoteProgress
 from subprocess import call
 from subprocess import check_output
 import atexit
-import time
-import os.path
-import shutil
 import git
-from git import RemoteProgress
+import multiprocessing
+import os.path
 import re
+import shutil
+import sys
+import time
 
 startTime = time.time()
 config_helper = ConfigHelper()
@@ -115,7 +116,7 @@ def runCMake():
 
 def buildLLVM():
   os.chdir(llvm_build_dir)
-  buildCommand = ["ninja-build", "-j32"]
+  buildCommand = ["ninja-build", "-j" + str(multiprocessing.cpu_count())]
   call(buildCommand)
 
 def installLLVM():

@@ -1,30 +1,23 @@
 #!/usr/bin/env python
 
 from build_config import ConfigHelper
-import sys
-import psutil
 from subprocess import call
-from subprocess import check_output
-import re
-import atexit
 import os
+import sys
 
 config_helper = ConfigHelper()
 jhbuildrc = config_helper.jhbuildrc
 
-debug_build_dir = os.path.join(config_helper.build_dir, 'Debug/')
-release_build_dir = os.path.join(config_helper.build_dir, 'Release/')
-
 def main(argv):
-  arguments = argv[1:]
-
-  if len(arguments) > 0 and arguments[0] == '--debug':
-    minibrowser = os.path.join(debug_build_dir, 'bin/MiniBrowser')
-    arguments = arguments[1:]
+  argParser = config_helper.get_argument_parser()
+  options = argParser.parse_args()
+  minibrowser = os.path.join(config_helper.get_webkit_dir(options), 'bin/MiniBrowser')
+  if options.url:
+    url = options.url
   else:
-    minibrowser = os.path.join(release_build_dir, 'bin/MiniBrowser')
+    url = ''
 
-  jhbuild_cmd = ["jhbuild", "-f", jhbuildrc, "run", minibrowser] + arguments
+  jhbuild_cmd = ["jhbuild", "-f", jhbuildrc, "run", minibrowser, url]
   call(jhbuild_cmd)
 
 if __name__ == '__main__':

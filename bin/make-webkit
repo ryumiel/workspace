@@ -1,29 +1,21 @@
 #!/usr/bin/env python
 
 from build_config import ConfigHelper
-import sys, argparse
+from datetime import timedelta
 from subprocess import call
 from subprocess import check_output
-import subprocess
-import os.path
 import atexit
+import multiprocessing
+import os.path
+import subprocess
+import sys
 import time
 
 startTime = time.time()
 config_helper = ConfigHelper()
 
-jhbuildrc = config_helper.jhbuildrc
-
-webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitGtk/')
-
-debug_build_dir = os.path.join(config_helper.build_dir, 'Debug/')
-release_build_dir = os.path.join(config_helper.build_dir, 'Release/')
-
 def ensureBuildDir(options):
-    if options.debug:
-      target_dir = os.path.join(config_helper.build_dir, 'Debug/')
-    elif not options.debug:
-      target_dir = os.path.join(config_helper.build_dir, 'Release/')
+    target_dir = config_helper.get_webkit_dir(options)
 
     if target_dir is None:
       print "Error: Invalid build dir"
@@ -34,33 +26,45 @@ def ensureBuildDir(options):
     return target_dir
 
 def jhbuildCmd():
-    return ["jhbuild", "-f", jhbuildrc, "run"]
+    return ["jhbuild", "-f", config_helper.jhbuildrc, "run"]
 
 def runCMake(options):
     working_dir = ensureBuildDir(options)
     os.chdir(working_dir)
 
     cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
-    # Enable threaded compositor always for now
-    cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=ON")
-    cmakeargs.append("-DENABLE_GLES2=ON")
-    cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=OFF")
+
+    if options.disable_threaded_compositor:
+      cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=OFF")
+    elif not options.disable_threaded_compositor:
+      cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=ON")
+
+    if options.use_gles:
+      cmakeargs.append("-DENABLE_GLES2=ON")
+      cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=OFF")
+    elif not options.use_gles:
+      cmakeargs.append("-DENABLE_GLES2=OFF")
+      cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=ON")
+
+    if options.disable_gstgl:
+      cmakeargs.append("-DUSE_GSTREAMER_GL=OFF")
+    elif not options.disable_gstgl:
+      cmakeargs.append("-DUSE_GSTREAMER_GL=ON")
+
+    if options.debug:
+        cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
+        cmakeargs.append("-DDEBUG_FISSION=ON")
+    else:
+        cmakeargs.append("-DCMAKE_BUILD_TYPE=Release")
+        cmakeargs.append("-DDEBUG_FISSION=OFF")
+
     cmakeargs.append("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
-    # Enable Gstreamer GL always for now
-    cmakeargs.append("-DUSE_GSTREAMER_GL=ON")
     #cmakeargs.append("-DUSE_REDIRECTED_XCOMPOSITE_WINDOW=OFF")
 
     cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + config_helper.install_dir)
     cmakeargs.append("-DCMAKE_INSTALL_LIBDIR=lib")
 
-    if options.debug:
-        # Turn of debug fission for icecc
-        cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
-        cmakeargs.append("-DDEBUG_FISSION=OFF")
-    else:
-        cmakeargs.append("-DCMAKE_BUILD_TYPE=Release")
-        cmakeargs.append("-DDEBUG_FISSION=OFF")
-
+    webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitGtk/')
     cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
     call(cmakeCommand)
 
@@ -85,25 +89,32 @@ def buildWebKitGtk(options):
       print "Error: Cannot determine the status of iceccd"
       exit(0)
 
-    setEnvForClang(False, isIceccdActive)
+    set_build_environment(False, isIceccdActive)
     if isIceccdActive:
-      numOfJob = 38
+      numOfJob = 40
     else:
-      numOfJob = 32
+      numOfJob = multiprocessing.cpu_count()
 
     runCMake(options)
     working_dir = ensureBuildDir(options)
     os.chdir(working_dir)
 
     buildCommand = jhbuildCmd() + ["ninja-build", "-j" + str(numOfJob)]
+
+    build_start_time = time.time()
     call(buildCommand)
+    build_time = round(time.time() - build_start_time)
+    print "WebKit build dir: " + working_dir
+    print "WebKit build options --"
+    print options
+    print "Elapsed build time: " + str(timedelta(seconds=build_time))
 
 def buildFinished():
     elapsedTime = round(time.time() - startTime)
     if elapsedTime > 30:
       call(["/usr/bin/aplay", "-q", config_helper.build_finished_sound_file])
 
-def setEnvForClang(isClang, isIcecc):
+def set_build_environment(isClang, isIcecc):
     if isClang:
       os.environ["CC"]="clang"
       os.environ["CXX"]="clang++"
@@ -111,17 +122,22 @@ def setEnvForClang(isClang, isIcecc):
 
     if isIcecc:
       os.environ["CCACHE_PREFIX"]="icecc"
-      os.environ["ICECC_VERSION"]=config_helper.config['icecc_version']
+      if isClang:
+        os.environ["ICECC_VERSION"]=config_helper.config['icecc_version']
 
 def main(argv):
-    argParser = argparse.ArgumentParser(description='Build webkit using custom jhbuild env')
-    argParser.add_argument('--debug', action='store_true', default=False, help='Compile with Debug configuration (default: Release)')
-    argParser.add_argument('--analyze', action='store_true', help='Enable static analysis [Not yet]')
-    argParser.add_argument('--install', action='store_true', default=False, help='Install Webkit to jhbuild')
-
+    argParser = config_helper.get_argument_parser()
     options = argParser.parse_args()
     atexit.register(buildFinished)
-    buildWebKitGtk(options)
+
+    if options.all:
+      total_build_start_time = time.time()
+      for option in config_helper.all_possible_build_options():
+          buildWebKitGtk(option)
+      total_build_time = round(time.time() - total_build_start_time)
+      print "Elapsed total build time: " + str(timedelta(seconds=total_build_time))
+    else:
+      buildWebKitGtk(options)
 
     if options.install:
       installWebKitGtk(options)
