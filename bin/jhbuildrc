@@ -39,6 +39,20 @@ autogenargs='--disable-static --disable-gtk-doc'
 # Set makeargs to 'V=1' for verbose build output.
 makeargs = ''
 
+from subprocess import check_output
+if 'run' not in sys.argv:
+  try:
+    __ret = check_output(["/usr/bin/systemctl", "is-active", "iceccd.service"]).rstrip();
+  except subprocess.CalledProcessError, e:
+    __ret = "unknown"
+  if __ret == "active":
+    __num_of_job = 40
+    os.environ["CCACHE_PREFIX"]="icecc"
+  elif ret == "unknown":
+    __num_of_job = multiprocessing.cpu_count()
+
+  makeargs += ' -j' + str(__num_of_job)
+
 # Skip WebKit from the build
 skip = [ 'WebKit' ]
 
@@ -46,4 +60,3 @@ skip = [ 'WebKit' ]
 # https://bugzilla.gnome.org/show_bug.cgi?id=765174
 # https://bugs.freedesktop.org/show_bug.cgi?id=71759
 os.environ['LIBGL_DRI3_DISABLE'] = '1'
-
