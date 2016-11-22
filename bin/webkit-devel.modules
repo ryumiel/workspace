@@ -54,10 +54,10 @@
     autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --with-egl-platforms=x11,wayland --with-dri-drivers=swrast --with-gallium-drivers=swrast">
     <!--- WARNING: At jhbuildrc, when we define the path to the Gallium llvmpipe software rasterizer (needed by XvfbDriver),
           we assume that the directory is named "Mesa". So, don't change the checkoutdir name even if you update the version.  -->
-    <branch module="/~brianp/mesa/11.2.2/mesa-11.2.2.tar.xz" version="11.2.2"
+    <branch module="/~brianp/mesa/12.0.4/mesa-12.0.4.tar.xz" version="12.0.4"
             checkoutdir="Mesa"
             repo="people.freedesktop.org"
-            hash="sha256:40e148812388ec7c6d7b6657d5a16e2e8dabba8b97ddfceea5197947647bdfb4">
+            hash="sha256:5d6003da867d3f54e5000b4acdfc37e6cce5b6a4459274fdad73e24bd2f0065e">
     </branch>
     <dependencies>
       <dep package="libdrm"/>
