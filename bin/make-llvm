@@ -72,7 +72,8 @@ def selectBranches(repo):
   origin.fetch(progress=GitProgress())
 
   if git.head.commit != origin.refs[version].commit:
-    origin.refs[version].checkout(force = True, b=version)
+    git.head.reference = origin.refs[version].commit
+    git.head.reset(index=True, working_tree=True)
     print origin.refs[version]
   else:
     print repo['srcDir'] + " is already updated to " + version
@@ -116,7 +117,17 @@ def runCMake():
 
 def buildLLVM():
   os.chdir(llvm_build_dir)
-  buildCommand = ["ninja-build", "-j" + str(multiprocessing.cpu_count())]
+  try:
+    __ret = check_output(["/usr/bin/systemctl", "is-active", "iceccd.service"]).rstrip();
+  except subprocess.CalledProcessError, e:
+    __ret = "unknown"
+  if __ret == "active":
+    __num_of_job = 40
+    os.environ["CCACHE_PREFIX"]="icecc"
+  elif ret == "unknown":
+    __num_of_job = multiprocessing.cpu_count()
+
+  buildCommand = ["ninja-build", "-j" + str(__num_of_job)]
   call(buildCommand)
 
 def installLLVM():
