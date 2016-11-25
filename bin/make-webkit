@@ -89,7 +89,7 @@ def buildWebKitGtk(options):
       print "Error: Cannot determine the status of iceccd"
       exit(0)
 
-    set_build_environment(False, isIceccdActive)
+    set_build_environment(True, isIceccdActive)
     if isIceccdActive:
       numOfJob = 40
     else:
