@@ -27,6 +27,29 @@ class ConfigHelper:
 
     return os.path.join(self.build_dir, name + '/')
 
+  def set_llvmpipe_env(self, environment):
+    llvmpipe_libgl_path = os.path.abspath(os.path.join(self.install_dir, 'softGL', 'lib'))
+    dri_libgl_path = os.path.join(llvmpipe_libgl_path, "dri")
+
+    if os.path.exists(os.path.join(llvmpipe_libgl_path, "libGL.so")) and os.path.exists(os.path.join(dri_libgl_path, "swrast_dri.so")):
+      # Force the Gallium llvmpipe software rasterizer
+      environment['LIBGL_ALWAYS_SOFTWARE'] = "1"
+      environment['LIBGL_DRIVERS_PATH'] = dri_libgl_path
+      environment['LD_LIBRARY_PATH'] = llvmpipe_libgl_path
+      if os.environ.get('LD_LIBRARY_PATH'):
+        environment['LD_LIBRARY_PATH'] += ':%s' % os.environ.get('LD_LIBRARY_PATH')
+    else:
+      print("Can't find Gallium llvmpipe driver. Try to run update-webkitgtk-libs")
+      sys.exit(2)
+
+  def set_weston_env_for_server(self, environment):
+    environment['XDG_RUNTIME_DIR'] = self.xdg_runtime_dir
+
+  def set_weston_env_for_client(self, environment):
+    environment['XDG_RUNTIME_DIR'] = self.xdg_runtime_dir
+    environment['WAYLAND_DISPLAY'] = self.wayland_socket
+    environment['GDK_BACKEND'] = 'wayland'
+
   def get_argument_parser(self):
     argParser = argparse.ArgumentParser(description='Webkit dev script using custom jhbuild env')
     argParser.add_argument('--release', action='store_false', dest='debug', default=False, help='Compile with Debug configuration (default: Release)')
@@ -38,7 +61,10 @@ class ConfigHelper:
     argParser.add_argument('--disable-gst-gl', action='store_true', dest='disable_gstgl', default=False, help='Disable Gst GL (default: False)')
     argParser.add_argument('--use-opengles', action='store_true', dest='use_gles', default=False, help='Use OpenGLES (default: False)')
 
-    argParser.add_argument('--url', help='URL to open  (for Minibrowser)')
+    # Options to run MiniBrowser
+    argParser.add_argument('--url', help='URL to open  (for MiniBrowser)')
+    argParser.add_argument('--weston', action='store_true', default=False, help='Open MiniBrowser inside of Weston (default: False)')
+    argParser.add_argument('--llvmpipe', action='store_true', default=False, help='Use llvmpipe as a gl backend (default: False)')
     return argParser
 
   def all_possible_build_options(self):
@@ -58,6 +84,9 @@ class ConfigHelper:
     self.jhbuild_src_dir = os.path.join(self.workspace_dir, 'Dependencies/Source')
     self.config_file = os.path.join(self.script_dir, "config.json")
     self.build_finished_sound_file = os.path.join(self.resource_dir, "build_finished.wav")
+
+    self.wayland_socket = 'wpe-test'
+    self.xdg_runtime_dir = os.path.join(self.script_dir, 'tmp')
 
     self.llvm_install_prefix = '/usr/local'
     self.jhbuildrc = os.path.join(self.script_dir, "jhbuildrc")

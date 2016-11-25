@@ -1,39 +1,24 @@
 #!/usr/bin/env python
 
-import sys
-import os
-from subprocess import call
 from build_config import ConfigHelper
-
-config_helper = ConfigHelper()
-wayland_socket = 'wpe-test'
-xdg_runtime_dir = '/tmp'
-
-def get_llvmpipe_env():
-  environment = os.environ
-
-  llvmpipe_libgl_path = os.path.abspath(os.path.join(config_helper.install_dir, 'softGL', 'lib'))
-  dri_libgl_path = os.path.join(llvmpipe_libgl_path, "dri")
-
-  if os.path.exists(os.path.join(llvmpipe_libgl_path, "libGL.so")) and os.path.exists(os.path.join(dri_libgl_path, "swrast_dri.so")):
-    # Force the Gallium llvmpipe software rasterizer
-    environment['LIBGL_ALWAYS_SOFTWARE'] = "1"
-    environment['LIBGL_DRIVERS_PATH'] = dri_libgl_path
-    environment['LD_LIBRARY_PATH'] = llvmpipe_libgl_path
-    if os.environ.get('LD_LIBRARY_PATH'):
-      environment['LD_LIBRARY_PATH'] += ':%s' % os.environ.get('LD_LIBRARY_PATH')
-  else:
-    print("Can't find Gallium llvmpipe driver. Try to run update-webkitgtk-libs")
-    sys.exit(2)
-  environment['XDG_RUNTIME_DIR']='/tmp'
-  #environment['WAYLAND_DISPLAY'] = 'wayland'
-  #environment['GDK_BACKEND'] = 'wayland'
-
-  return environment
+from subprocess import call
+import argparse
+import os
+import sys
 
 def main(argv):
-  jhbuild_cmd = ['jhbuild', '-f', config_helper.jhbuildrc, 'run', 'weston', '--socket=' + wayland_socket]
-  call(jhbuild_cmd, env=get_llvmpipe_env())
+  config_helper = ConfigHelper()
+  argParser = argparse.ArgumentParser(description='Weston script using custom jhbuild env')
+  argParser.add_argument('--llvmpipe', action='store_true', default=False, help='Use llvmpipe as a gl backend (default: False)')
+  option = argParser.parse_args()
+
+  environment = os.environ
+  if option.llvmpipe:
+    config_helper.set_llvmpipe_env(os.environ)
+
+  config_helper.set_weston_env_for_server(environment)
+  jhbuild_cmd = ['jhbuild', '-f', config_helper.jhbuildrc, 'run', 'weston', '--socket=' + config_helper.wayland_socket, '--use-pixman', '--width=1080', '--height=768']
+  call(jhbuild_cmd, env=environment)
 
 if __name__ == '__main__':
   main(sys.argv)
