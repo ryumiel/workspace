@@ -14,6 +14,8 @@
       href="git://anongit.freedesktop.org/gstreamer/"/>
   <repository type="tarball" name="people.freedesktop.org"
       href="http://people.freedesktop.org"/>
+  <repository type="tarball" name="llvm.org"
+      href="http://llvm.org"/>
 
   <repository type="git" name="yoon.gstreamer"
       href="/home/yoon/webkit/gstreamer"/>
@@ -49,17 +51,25 @@
     </dependencies>
   </autotools>
 
+  <cmake id="llvm" force-non-srcdir-builds="yes"
+             cmakeargs="-DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_BUILD_TYPE=Release -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_ENABLE_BACKTRACES=OFF -DLLVM_ENABLE_CRASH_OVERRIDES=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_BUILD_LLVM_DYLIB=ON">
+    <branch repo="llvm.org"
+            module="/releases/3.8.1/llvm-3.8.1.src.tar.xz" version="3.8.1" checkoutdir="llvm-3.8.1"
+            hash="sha256:6e82ce4adb54ff3afc18053d6981b6aed1406751b8742582ed50f04b5ab475f9"/>
+  </cmake>
+
   <autotools id="mesa"
     autogen-template="%(srcdir)s/%(autogen-sh)s --prefix %(prefix)s/softGL %(autogenargs)s"
-    autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --with-egl-platforms=x11,wayland --with-dri-drivers=swrast --with-gallium-drivers=swrast">
+    autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --enable-gbm --with-egl-platforms=x11,wayland,drm --with-dri-drivers=swrast --with-gallium-drivers=swrast">
     <!--- WARNING: At jhbuildrc, when we define the path to the Gallium llvmpipe software rasterizer (needed by XvfbDriver),
           we assume that the directory is named "Mesa". So, don't change the checkoutdir name even if you update the version.  -->
     <branch module="/~brianp/mesa/12.0.4/mesa-12.0.4.tar.xz" version="12.0.4"
-            checkoutdir="Mesa"
+            checkoutdir="Mesa-12.0.4"
             repo="people.freedesktop.org"
             hash="sha256:5d6003da867d3f54e5000b4acdfc37e6cce5b6a4459274fdad73e24bd2f0065e">
     </branch>
     <dependencies>
+      <dep package="llvm"/>
       <dep package="libdrm"/>
       <dep package="wayland"/>
     </dependencies>
