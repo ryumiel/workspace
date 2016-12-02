@@ -19,10 +19,10 @@ def main(argv):
 
   environment = os.environ
   if options.weston:
-    environment = config_helper.set_weston_env_for_client(environment)
+    config_helper.set_weston_env_for_client(environment)
 
   if options.llvmpipe:
-    environment = config_helper.set_weston_env_for_client(environment)
+    config_helper.set_llvmpipe_env(environment)
 
   jhbuild_cmd = ["jhbuild", "-f", config_helper.jhbuildrc, "run", minibrowser, url]
   call(jhbuild_cmd)
