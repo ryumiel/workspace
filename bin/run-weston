@@ -22,7 +22,7 @@ def main(argv):
   ret = check_output(["gsettings", "get", "org.gnome.desktop.interface", "scaling-factor"])
   scale = [int(s) for s in ret.split() if s.isdigit()][0]
 
-  jhbuild_cmd = ['jhbuild', '-f', config_helper.jhbuildrc, 'run', 'weston', '--socket=' + config_helper.wayland_socket, '--use-pixman', '--width=1080', '--height=768', '--scale=' + str(scale)]
+  jhbuild_cmd = ['jhbuild', '-f', config_helper.jhbuildrc, 'run', 'weston', '--socket=' + config_helper.wayland_socket, '--width=1080', '--height=768', '--scale=' + str(scale)]
   call(jhbuild_cmd, env=environment)
 
 if __name__ == '__main__':
