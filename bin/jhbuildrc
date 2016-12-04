@@ -51,6 +51,7 @@ if 'run' not in sys.argv:
   elif ret == "unknown":
     __num_of_job = multiprocessing.cpu_count()
 
+  os.environ["CCACHE_DISABLE"]="1"
   makeargs += ' -j' + str(__num_of_job)
 
 # Skip WebKit from the build
