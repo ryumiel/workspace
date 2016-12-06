@@ -65,6 +65,7 @@ class ConfigHelper:
     argParser.add_argument('--url', help='URL to open  (for MiniBrowser)')
     argParser.add_argument('--weston', action='store_true', default=False, help='Open MiniBrowser inside of Weston (default: False)')
     argParser.add_argument('--llvmpipe', action='store_true', default=False, help='Use llvmpipe as a gl backend (default: False)')
+    argParser.add_argument('--gdb', action='store_true', default=False, help='execute gdb for MiniBrowser')
     return argParser
 
   def all_possible_build_options(self):
