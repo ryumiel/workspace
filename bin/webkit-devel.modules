@@ -91,7 +91,7 @@
 
   <autotools id="mesa"
     autogen-template="%(srcdir)s/%(autogen-sh)s --prefix %(prefix)s/softGL %(autogenargs)s"
-    autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --enable-gbm --with-egl-platforms=x11,wayland,drm --with-dri-drivers=swrast,i915,nouveau --with-gallium-drivers=swrast,i915,nouveau">
+    autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --enable-gbm --with-egl-platforms=x11,wayland,drm --with-dri-drivers=swrast,i915,nouveau --with-gallium-drivers=swrast,i915,nouveau --enable-debug">
     <!--- WARNING: At jhbuildrc, when we define the path to the Gallium llvmpipe software rasterizer (needed by XvfbDriver),
           we assume that the directory is named "Mesa". So, don't change the checkoutdir name even if you update the version.  -->
     <branch repo="git.freedesktop.org"
