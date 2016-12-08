@@ -237,6 +237,20 @@
    <branch repo="github.com" module="sctplab/usrsctp.git" checkoutdir="usrsctp" tag="078ff3252f73327e0ac11d6fd5eff62011f6646e"/>
   </autotools>
 
+  <cmake id="wpe">
+    <branch repo="github.com" module="WebKitForWayland/wpe.git" />
+  </cmake>
+
+  <cmake id="wpe-mesa">
+    <dependencies>
+      <dep package="wpe" />
+      <dep package="glib" />
+      <dep package="wayland" />
+      <dep package="xkbcommon" />
+    </dependencies>
+    <branch repo="github.com" module="WebKitForWayland/wpe-mesa.git" />
+  </cmake>
+
   <metamodule id="meta-gstreamer">
     <dependencies>
       <dep package="gstreamer"/>
@@ -255,6 +269,7 @@
       <dep package="meta-epiphany-deps-except-webkit"/>
       <dep package="meta-webkit-deps"/>
       <dep package="meta-gstreamer"/>
+      <dep package="wpe-mesa"/>
     </dependencies>
   </metamodule>
 
