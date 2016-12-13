@@ -39,16 +39,16 @@ autogenargs='--disable-static --disable-gtk-doc'
 # Set makeargs to 'V=1' for verbose build output.
 makeargs = ''
 
-from subprocess import check_output
+import subprocess
 if 'run' not in sys.argv:
   try:
-    __ret = check_output(["/usr/bin/systemctl", "is-active", "iceccd.service"]).rstrip();
+    __ret = subprocess.check_output(["/usr/bin/systemctl", "is-active", "iceccd.service"]).rstrip();
   except subprocess.CalledProcessError, e:
     __ret = "unknown"
   if __ret == "active":
     __num_of_job = 40
     os.environ["CCACHE_PREFIX"]="icecc"
-  elif ret == "unknown":
+  elif __ret == "unknown":
     __num_of_job = multiprocessing.cpu_count()
 
   os.environ["CCACHE_DISABLE"]="1"
