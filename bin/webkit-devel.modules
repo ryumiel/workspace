@@ -91,13 +91,13 @@
 
   <autotools id="mesa"
     autogen-template="%(srcdir)s/%(autogen-sh)s --prefix %(prefix)s/softGL %(autogenargs)s"
-    autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --enable-gbm --with-egl-platforms=x11,wayland,drm --with-dri-drivers=swrast --with-gallium-drivers=swrast">
+    autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --enable-gbm --with-egl-platforms=x11,wayland,drm --with-dri-drivers=swrast,i915,nouveau --with-gallium-drivers=swrast,i915,nouveau">
     <!--- WARNING: At jhbuildrc, when we define the path to the Gallium llvmpipe software rasterizer (needed by XvfbDriver),
           we assume that the directory is named "Mesa". So, don't change the checkoutdir name even if you update the version.  -->
-    <branch module="/~brianp/mesa/12.0.4/mesa-12.0.4.tar.xz" version="12.0.4"
-            checkoutdir="Mesa-12.0.4"
-            repo="people.freedesktop.org"
-            hash="sha256:5d6003da867d3f54e5000b4acdfc37e6cce5b6a4459274fdad73e24bd2f0065e">
+    <branch repo="git.freedesktop.org"
+            module="mesa/mesa.git"
+            checkoutdir="mesa"
+            tag="mesa-13.0.2">
     </branch>
     <dependencies>
       <dep package="llvm"/>
