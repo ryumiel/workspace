@@ -76,14 +76,14 @@ def installWebKitGtk(options):
 
 def buildWebKitGtk(options):
     try:
-      ret = check_output(["/usr/bin/systemctl", "is-active", "iceccd.service"]).rstrip();
+      iceccd_active_status = check_output(["/usr/bin/systemctl", "is-active", "iceccd.service"]).rstrip();
     except subprocess.CalledProcessError, e:
-      ret = "unknown"
+      iceccd_active_status = "unknown"
 
-    print ret
-    if ret == "active":
+    print iceccd_active_status
+    if iceccd_active_status == "active":
       isIceccdActive = True
-    elif ret == "unknown":
+    elif iceccd_active_status == "unknown":
       isIceccdActive = False
     else:
       print "Error: Cannot determine the status of iceccd"
