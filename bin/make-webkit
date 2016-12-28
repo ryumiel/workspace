@@ -102,12 +102,15 @@ def buildWebKitGtk(options):
     buildCommand = jhbuildCmd() + ["ninja-build", "-j" + str(numOfJob)]
 
     build_start_time = time.time()
-    call(buildCommand)
+    build_return = call(buildCommand)
     build_time = round(time.time() - build_start_time)
     print "WebKit build dir: " + working_dir
     print "WebKit build options --"
     print options
     print "Elapsed build time: " + str(timedelta(seconds=build_time))
+    if build_return == 0:
+      return True
+    return False
 
 def buildFinished():
     elapsedTime = round(time.time() - startTime)
@@ -129,15 +132,23 @@ def main(argv):
     argParser = config_helper.get_argument_parser()
     options = argParser.parse_args()
     atexit.register(buildFinished)
+    failed_options = []
 
     if options.all:
       total_build_start_time = time.time()
       for option in config_helper.all_possible_build_options():
-          buildWebKitGtk(option)
+        did_success = buildWebKitGtk(option)
+        if not did_success:
+          failed_options.append(option)
       total_build_time = round(time.time() - total_build_start_time)
       print "Elapsed total build time: " + str(timedelta(seconds=total_build_time))
     else:
-      buildWebKitGtk(options)
+      did_success = buildWebKitGtk(options)
+      if not did_success:
+        failed_options.append(options)
+
+    for option in failed_options:
+      print "Build Failed: " + str(option)
 
     if options.install:
       installWebKitGtk(options)
