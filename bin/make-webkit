@@ -91,7 +91,7 @@ def buildWebKitGtk(options):
 
     set_build_environment(True, isIceccdActive)
     if isIceccdActive:
-      numOfJob = 40
+      numOfJob = 37
     else:
       numOfJob = multiprocessing.cpu_count()
 
