@@ -122,11 +122,12 @@ def buildLLVM():
   except subprocess.CalledProcessError, e:
     __ret = "unknown"
   if __ret == "active":
-    __num_of_job = 40
+    __num_of_job = 37
     os.environ["CCACHE_PREFIX"]="icecc"
   elif ret == "unknown":
     __num_of_job = multiprocessing.cpu_count()
 
+  os.environ["CCACHE_DISABLE"]="1"
   buildCommand = ["ninja-build", "-j" + str(__num_of_job)]
   call(buildCommand)
 
