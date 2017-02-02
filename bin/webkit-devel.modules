@@ -12,6 +12,8 @@
       href="http://www.freedesktop.org"/>
   <repository type="git" name="github.com"
       href="https://github.com"/>
+  <repository type="tarball" name="github-tarball"
+      href="https://github.com/"/>
   <repository type="git" name="gstreamer.freedesktop.org"
       href="git://anongit.freedesktop.org/gstreamer/"/>
   <repository type="tarball" name="people.freedesktop.org"
@@ -169,7 +171,7 @@
   </metamodule>
 
   <autotools id="gstreamer" autogenargs="--disable-gtk-doc --enable-debug">
-    <branch module="gstreamer" tag="1.9.90" repo="gstreamer.freedesktop.org" />
+    <branch module="gstreamer" tag="1.11.1" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-plugins-base"
@@ -178,36 +180,38 @@
     <dependencies>
       <dep package="gstreamer"/>
     </dependencies>
-    <branch module="gst-plugins-base" tag="1.9.90" repo="gstreamer.freedesktop.org" />
+    <branch module="gst-plugins-base" tag="1.11.1" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-plugins-good" autogenargs="--disable-examples --disable-soup --disable-gtk-doc --enable-debug">
     <dependencies>
       <dep package="gst-plugins-base"/>
+      <dep package="libvpx"/>
     </dependencies>
 
-    <branch module="gst-plugins-good" tag="1.9.90" repo="gstreamer.freedesktop.org" />
+    <branch module="gst-plugins-good" tag="1.11.1" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-plugins-bad" autogenargs="--disable-examples --disable-gtk-doc --enable-debug">
     <dependencies>
       <dep package="gst-plugins-base"/>
+      <dep package="openh264"/>
     </dependencies>
-    <branch module="gst-plugins-bad" tag="1.9.90" revision="master" repo="gstreamer.freedesktop.org" />
+    <branch module="gst-plugins-bad" tag="1.11.1" revision="master" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-libav" autogenargs="--with-libav-extra-configure='--disable-yasm' --disable-gtk-doc">
     <dependencies>
       <dep package="gst-plugins-base"/>
     </dependencies>
-    <branch module="gst-libav" tag="1.9.90" repo="gstreamer.freedesktop.org" />
+    <branch module="gst-libav" tag="1.11.1" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gstreamer-vaapi" autogenargs="--disable-gtk-doc --enable-debug">
     <dependencies>
       <dep package="gst-plugins-bad"/>
     </dependencies>
-    <branch module="gstreamer-vaapi" tag="1.9.90" repo="gstreamer.freedesktop.org" />
+    <branch module="gstreamer-vaapi" tag="1.11.1" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="libnice" supports-non-srcdir-builds="no">
@@ -220,9 +224,10 @@
   <autotools id="openwebrtc" autogenargs="--enable-bridge=no --enable-owr-gst=yes">
     <dependencies>
       <dep package="gst-plugins-openwebrtc"/>
+      <dep package="gst-plugins-bad"/>
       <dep package="libnice"/>
      </dependencies>
-    <branch repo="github.com" module="EricssonResearch/openwebrtc.git" checkoutdir="openwebrtc" tag="c997bff14a9389582bc107e2aea7ce77fb700ed9"/>
+    <branch repo="github.com" module="Igalia/openwebrtc.git" checkoutdir="openwebrtc" tag="7f3d23e034818893db198f4b56e41609abd8847b"/>
   </autotools>
 
   <autotools id="gst-plugins-openwebrtc" supports-parallel-builds="no" supports-non-srcdir-builds="no" autogen-sh="./autogen.sh; ./configure">
@@ -230,11 +235,24 @@
       <dep package="gst-plugins-base"/>
       <dep package="libusrsctp"/>
     </dependencies>
-   <branch repo="github.com" module="EricssonResearch/openwebrtc-gst-plugins.git" checkoutdir="gst-plugins-openwebrtc" tag="f40f3302007da00f0bfb82065d705b62c2ea1afd"/>
+    <branch repo="github.com" module="Igalia/openwebrtc-gst-plugins.git" checkoutdir="gst-plugins-openwebrtc" tag="9b2199ea970369dbf1d9ca2f8e61c95f21db2b6e"/>
   </autotools>
 
   <autotools id="libusrsctp" supports-non-srcdir-builds="no" autogen-sh="./bootstrap; ./configure --disable-warnings-as-errors">
    <branch repo="github.com" module="sctplab/usrsctp.git" checkoutdir="usrsctp" tag="078ff3252f73327e0ac11d6fd5eff62011f6646e"/>
+  </autotools>
+
+  <autotools id="openh264" supports-non-srcdir-builds="no" autogen-sh="pseudo-configure">
+    <branch module="cisco/openh264/archive/v${version}.tar.gz" version="1.5.0"
+            checkoutdir="openh264-${version}" repo="github-tarball">
+      <patch file="openh264-configure.patch" strip="0"/>
+    </branch>
+  </autotools>
+
+  <autotools id="libvpx"
+    autogen-template="%(srcdir)s/configure --prefix=%(prefix)s --enable-pic --as=yasm --disable-unit-tests --size-limit=16384x16384 --enable-postproc --enable-multi-res-encoding --enable-temporal-denoising --enable-vp9-temporal-denoising --enable-vp9-postproc --enable-shared">
+    <branch repo="github.com" module="webmproject/libvpx.git" version="1.6.0" checkoutdir="libvpx-1.6.0">
+    </branch>
   </autotools>
 
   <cmake id="wpe">
