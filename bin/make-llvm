@@ -34,7 +34,7 @@ repoList = [
   mkDict('llvm/project/libcxx/', 'git@github.com:llvm-mirror/libcxx.git'),
 ]
 
-version = 'release_39'
+version = 'release_40'
 
 class GitProgress(RemoteProgress):
   def line_dropped(self, line):
