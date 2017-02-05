@@ -4,6 +4,7 @@ from build_config import ConfigHelper
 from git import RemoteProgress
 from subprocess import call
 from subprocess import check_output
+import subprocess
 import atexit
 import git
 import multiprocessing
@@ -124,7 +125,7 @@ def buildLLVM():
   if __ret == "active":
     __num_of_job = 37
     os.environ["CCACHE_PREFIX"]="icecc"
-  elif ret == "unknown":
+  elif __ret == "unknown":
     __num_of_job = multiprocessing.cpu_count()
 
   os.environ["CCACHE_DISABLE"]="1"
