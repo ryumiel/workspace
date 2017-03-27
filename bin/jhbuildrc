@@ -14,7 +14,7 @@
 # A list of the modules to build.  Defaults to the GNOME core and tested apps.
 # modules = [ 'meta-gnome-core', 'meta-gnome-apps-tested' ]
 __basedir = os.path.dirname(os.path.realpath(__file__))
-moduleset = [ 'gnome-suites-core-3.22', 'gnome-apps-3.22', os.path.join(__basedir,'webkit-devel.modules'), os.path.join(__basedir,'gnome-builder.modules') ]
+moduleset = [ 'gnome-suites-core-3.26', 'gnome-apps-3.26', os.path.join(__basedir,'webkit-devel.modules'), os.path.join(__basedir,'gnome-builder.modules') ]
 
 # Or to build the old GNOME 2.32:
 # moduleset = 'gnome2/gnome-2.32'

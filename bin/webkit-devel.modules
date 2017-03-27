@@ -171,7 +171,7 @@
   </metamodule>
 
   <autotools id="gstreamer" autogenargs="--disable-gtk-doc --enable-debug">
-    <branch module="gstreamer" tag="1.11.1" repo="gstreamer.freedesktop.org" />
+    <branch module="gstreamer" tag="1.11.2" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-plugins-base"
@@ -180,7 +180,7 @@
     <dependencies>
       <dep package="gstreamer"/>
     </dependencies>
-    <branch module="gst-plugins-base" tag="1.11.1" repo="gstreamer.freedesktop.org" />
+    <branch module="gst-plugins-base" tag="1.11.2" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-plugins-good" autogenargs="--disable-examples --disable-soup --disable-gtk-doc --enable-debug">
@@ -189,7 +189,7 @@
       <dep package="libvpx"/>
     </dependencies>
 
-    <branch module="gst-plugins-good" tag="1.11.1" repo="gstreamer.freedesktop.org" />
+    <branch module="gst-plugins-good" tag="1.11.2" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-plugins-bad" autogenargs="--disable-examples --disable-gtk-doc --enable-debug">
@@ -197,21 +197,21 @@
       <dep package="gst-plugins-base"/>
       <dep package="openh264"/>
     </dependencies>
-    <branch module="gst-plugins-bad" tag="1.11.1" revision="master" repo="gstreamer.freedesktop.org" />
+    <branch module="gst-plugins-bad" tag="1.11.2" revision="master" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gst-libav" autogenargs="--with-libav-extra-configure='--disable-yasm' --disable-gtk-doc">
     <dependencies>
       <dep package="gst-plugins-base"/>
     </dependencies>
-    <branch module="gst-libav" tag="1.11.1" repo="gstreamer.freedesktop.org" />
+    <branch module="gst-libav" tag="1.11.2" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="gstreamer-vaapi" autogenargs="--disable-gtk-doc --enable-debug">
     <dependencies>
       <dep package="gst-plugins-bad"/>
     </dependencies>
-    <branch module="gstreamer-vaapi" tag="1.11.1" repo="gstreamer.freedesktop.org" />
+    <branch module="gstreamer-vaapi" tag="1.11.2" repo="gstreamer.freedesktop.org" />
   </autotools>
 
   <autotools id="libnice" supports-non-srcdir-builds="no">
