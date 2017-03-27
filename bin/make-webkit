@@ -32,7 +32,12 @@ def runCMake(options):
     working_dir = ensureBuildDir(options)
     os.chdir(working_dir)
 
-    cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
+    if options.wpe:
+      cmakeargs = ["-DPORT=WPE", "-GNinja", "-DDEVELOPER_MODE=ON"]
+      webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitWPE/')
+    else:
+      cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
+      webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitGtk/')
 
     if options.disable_threaded_compositor:
       cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=OFF")
@@ -64,7 +69,6 @@ def runCMake(options):
     cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + config_helper.install_dir)
     cmakeargs.append("-DCMAKE_INSTALL_LIBDIR=lib")
 
-    webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitGtk/')
     cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
     call(cmakeCommand)
 

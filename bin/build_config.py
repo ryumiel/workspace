@@ -18,6 +18,9 @@ class ConfigHelper:
     elif not options.debug:
       name = 'Release'
 
+    if options.wpe:
+      name = name + 'WPE'
+
     if options.use_gles:
       name = name + 'GLES'
     if options.disable_threaded_compositor:
@@ -51,6 +54,8 @@ class ConfigHelper:
     environment['GDK_BACKEND'] = 'wayland'
 
   def get_argument_parser(self):
+
+    # Options to build WebKitGtk
     argParser = argparse.ArgumentParser(description='Webkit dev script using custom jhbuild env')
     argParser.add_argument('--release', action='store_false', dest='debug', default=False, help='Compile with Debug configuration (default: Release)')
     argParser.add_argument('--debug', action='store_true', default=False, help='Compile with Debug configuration (default: Release)')
@@ -60,6 +65,9 @@ class ConfigHelper:
     argParser.add_argument('--disable-threaded-compositor', action='store_true', dest='disable_threaded_compositor', default=False, help='Disable Threaded Compositor (default: False)')
     argParser.add_argument('--disable-gst-gl', action='store_true', dest='disable_gstgl', default=False, help='Disable Gst GL (default: False)')
     argParser.add_argument('--use-opengles', action='store_true', dest='use_gles', default=False, help='Use OpenGLES (default: False)')
+
+    # Options to build WebKitWPE
+    argParser.add_argument('--wpe', action='store_true', dest='wpe', default=False, help='Build WebKitWPE (default: False)')
 
     # Options to run MiniBrowser
     argParser.add_argument('--url', help='URL to open  (for MiniBrowser)')
