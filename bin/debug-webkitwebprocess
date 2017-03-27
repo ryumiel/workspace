@@ -7,6 +7,8 @@ import re
 import atexit
 import os
 import datetime
+import subprocess
+import signal
 
 config_helper = ConfigHelper()
 jhbuildrc = config_helper.jhbuildrc
@@ -57,6 +59,8 @@ def find_process(proc_name):
       i += 1
   return process_list
 
+def handle_sigint(signum, frame):
+  gdb_ps.send_signal(signal.SIGINT)
 
 def main(argv):
   webprocess_name = 'WebKitWebProcess'
@@ -71,6 +75,10 @@ def main(argv):
   gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
   gdb_cmd = ["cgdb", "--", "-init-command", gdbinit, "-pid", str(proc.pid)]
   print ' '.join(gdb_cmd)
+
+  signal.signal(signal.SIGINT, handle_sigint)
+  gdb_ps = subprocess.Popen(gdb_cmd)
+  gdb_ps.wait()
 
 if __name__ == '__main__':
   main(sys.argv)
