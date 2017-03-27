@@ -3,7 +3,6 @@
 from build_config import ConfigHelper
 import sys
 import psutil
-import re
 import atexit
 import os
 import datetime
@@ -55,8 +54,11 @@ def find_process(proc_name):
   i = 0;
   for proc in psutil.process_iter():
     if proc.name() == proc_name:
-      process_list.append(mkDict(i, proc, ""))
-      i += 1
+      if config_helper.build_dir not in proc.exe():
+        continue
+      else:
+        process_list.append(mkDict(i, proc, ""))
+        i += 1
   return process_list
 
 def handle_sigint(signum, frame):
