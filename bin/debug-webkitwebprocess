@@ -10,10 +10,6 @@ import subprocess
 import signal
 
 config_helper = ConfigHelper()
-jhbuildrc = config_helper.jhbuildrc
-
-debug_build_dir = os.path.join(config_helper.build_dir, 'Debug/')
-release_build_dir = os.path.join(config_helper.build_dir, 'Release/')
 
 def process_info_str(proc):
   info_str = "pid: " + str(proc.pid)
@@ -61,26 +57,34 @@ def find_process(proc_name):
         i += 1
   return process_list
 
-def handle_sigint(signum, frame):
-  gdb_ps.send_signal(signal.SIGINT)
+class GDB():
+  def handle_sigint(self, signum, frame):
+    print "SIGINT received!"
+    print self.gdb_ps
+    self.gdb_ps.send_signal(signal.SIGINT)
+
+  def run(self):
+    signal.signal(signal.SIGINT, self.handle_sigint)
+    self.gdb_ps = subprocess.Popen(self.gdb_cmd)
+    self.gdb_ps.wait()
+
+  def __init__(self):
+    webprocess_name = 'WebKitWebProcess'
+
+    print "Finding " + webprocess_name + "..."
+    process_list = find_process(webprocess_name)
+    if len(process_list) < 1:
+      print "Unable to find target process"
+      sys.exit(0)
+
+    proc = select_target_process(process_list)
+    gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
+    self.gdb_cmd = ["cgdb", "--", "-init-command", gdbinit, "-pid", str(proc.pid)]
+    print ' '.join(self.gdb_cmd)
 
 def main(argv):
-  webprocess_name = 'WebKitWebProcess'
-
-  print "Finding " + webprocess_name + "..."
-  process_list = find_process(webprocess_name)
-  if len(process_list) < 1:
-    print "Unable to find target process"
-    sys.exit(0)
-
-  proc = select_target_process(process_list)
-  gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
-  gdb_cmd = ["cgdb", "--", "-init-command", gdbinit, "-pid", str(proc.pid)]
-  print ' '.join(gdb_cmd)
-
-  signal.signal(signal.SIGINT, handle_sigint)
-  gdb_ps = subprocess.Popen(gdb_cmd)
-  gdb_ps.wait()
+  gdb = GDB()
+  gdb.run()
 
 if __name__ == '__main__':
   main(sys.argv)
