@@ -37,6 +37,11 @@ def main(argv):
   if arguments[0] == 'run':
     launch_dconf()
 
+  if arguments[0] == 'shell':
+    os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.build_dir, "Debug/lib/libTestRunnerInjectedBundle.so")
+    os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.build_dir, "Debug/lib/plugins")
+
+
   jhbuild_cmd = ["jhbuild", "-f", jhbuildrc] + arguments
   call(jhbuild_cmd)
 
