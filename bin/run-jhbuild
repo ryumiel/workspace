@@ -1,46 +1,19 @@
 #!/usr/bin/env python
 
 from build_config import ConfigHelper
-import sys
-import psutil
 from subprocess import call
-from subprocess import check_output
-import re
-import atexit
+import sys
 import os
 
 config_helper = ConfigHelper()
 jhbuildrc = config_helper.jhbuildrc
 
-dbus_pid = None
-dbus_address = None
-
-def launch_dconf():
-  dbus_cmd = ["dbus-launch", "--sh-syntax"]
-  output = check_output(dbus_cmd)
-  dbus_pid = int(re.search(r'DBUS_SESSION_BUS_PID=([0-9]+)', output).group(1))
-  dbus_address = re.search(r'DBUS_SESSION_BUS_ADDRESS=\'(.*)\'', output).group(1)
-  print "Launch dbus - pid:" + str(dbus_pid) + " address=" + dbus_address
-  atexit.register(close_dbus, pid=dbus_pid, address=dbus_address)
-
-  os.environ["GTK_IM_MODULE"]="ibus"
-  os.environ["XMODIFIERS"]="@im=ibus"
-  os.environ["GSETTINGS_BACKEND"]="dconf"
-
-def close_dbus(pid, address):
-  print "Terminating dbus - pid:" + str(pid) + " address=" + address
-  psutil.Process(dbus_pid).terminate()
-
 def main(argv):
   arguments = argv[1:]
-
-  if arguments[0] == 'run':
-    launch_dconf()
 
   if arguments[0] == 'shell':
     os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.build_dir, "Debug/lib/libTestRunnerInjectedBundle.so")
     os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.build_dir, "Debug/lib/plugins")
-
 
   jhbuild_cmd = ["jhbuild", "-f", jhbuildrc] + arguments
   call(jhbuild_cmd)
