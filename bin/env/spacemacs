@@ -260,6 +260,7 @@ you should place your code here."
                                             (member-init-intro . +)
                                             (topmost-intro . 0)
                                             (arglist-cont-nonempty . +)))))
+   (setq shell-file-name "/bin/sh")
    (set-variable 'ycmd-server-command '("python" "/home/yoon/webkit/ycmd/ycmd"))
    (setq projectile-enable-caching t)
    (setq helm-ag-use-agignore t)
