@@ -295,3 +295,17 @@ you should place your code here."
    (evil-leader/set-key "o y" 'copy-to-clipboard)
    (evil-leader/set-key "o p" 'paste-from-clipboard)
   )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (markdown-mode highlight evil avy dash ws-butler web-mode use-package toc-org pug-mode persp-mode orgit org org-plus-contrib org-download neotree info+ hide-comnt helm-projectile helm-flx helm-c-yasnippet helm-ag gitattributes-mode expand-region evil-surround evil-nerd-commenter evil-mc evil-matchit evil-escape evil-anzu column-enforce-mode clang-format auto-compile packed auto-complete yasnippet smartparens ycmd flycheck company request helm helm-core magit magit-popup git-commit with-editor alert projectile hydra haml-mode spacemacs-theme zenburn-theme window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen tagedit spaceline smeargle slim-mode scss-mode sass-mode restart-emacs request-deferred rainbow-delimiters quelpa popwin pkg-info pcre2el paradox org-projectile org-present org-pomodoro org-bullets open-junk-file move-text monokai-theme mmm-mode markdown-toc magit-gitflow macrostep lorem-ipsum log4e linum-relative link-hint less-css-mode ir-black-theme indent-guide ido-vertical-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation help-fns+ helm-themes helm-swoop helm-mode-manager helm-make helm-gitignore helm-descbinds helm-css-scss helm-company google-translate golden-ratio gnuplot gntp gitconfig-mode git-timemachine git-messenger git-link gh-md flycheck-ycmd flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-search-highlight-persist evil-numbers evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-ediff evil-args eval-sexp-fu emmet-mode elisp-slime-nav dumb-jump disaster diminish define-word company-ycmd company-web company-statistics company-c-headers cmake-mode clean-aindent-mode bind-key auto-yasnippet auto-highlight-symbol async anzu aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
