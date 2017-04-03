@@ -11,10 +11,6 @@ jhbuildrc = config_helper.jhbuildrc
 def main(argv):
   arguments = argv[1:]
 
-  if arguments[0] == 'shell':
-    os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.build_dir, "Debug/lib/libTestRunnerInjectedBundle.so")
-    os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.build_dir, "Debug/lib/plugins")
-
   jhbuild_cmd = ["jhbuild", "-f", jhbuildrc] + arguments
   call(jhbuild_cmd)
 

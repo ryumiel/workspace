@@ -27,6 +27,11 @@ def main(argv):
   if options.gdb:
     gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
     cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser, url]
+  elif options.test:
+    testRunner = os.path.join(config_helper.get_webkit_dir(options), 'bin/WebKitTestRunner')
+    os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.get_webkit_dir(options), 'lib/libTestRunnerInjectedBundle.so')
+    os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.get_webkit_dir(options), 'lib/plugins')
+    cmd = [testRunner, url]
   else:
     cmd = [minibrowser, url]
 

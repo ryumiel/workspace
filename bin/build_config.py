@@ -61,6 +61,7 @@ class ConfigHelper:
     argParser.add_argument('--debug', action='store_true', default=False, help='Compile with Debug configuration (default: Release)')
     argParser.add_argument('--install', action='store_true', default=False, help='Install Webkit to jhbuild')
     argParser.add_argument('--all', action='store_true', default=False, help='Build WebKit with all possible configurations (default: False)')
+    argParser.add_argument('--fast', action='store_true', default=False, help='Compile only selected components (default: False)')
 
     argParser.add_argument('--disable-threaded-compositor', action='store_true', dest='disable_threaded_compositor', default=False, help='Disable Threaded Compositor (default: False)')
     argParser.add_argument('--disable-gst-gl', action='store_true', dest='disable_gstgl', default=False, help='Disable Gst GL (default: False)')
@@ -74,6 +75,7 @@ class ConfigHelper:
     argParser.add_argument('--weston', action='store_true', default=False, help='Open MiniBrowser inside of Weston (default: False)')
     argParser.add_argument('--llvmpipe', action='store_true', default=False, help='Use llvmpipe as a gl backend (default: False)')
     argParser.add_argument('--gdb', action='store_true', default=False, help='execute gdb for MiniBrowser')
+    argParser.add_argument('--test', action='store_true', default=False, help='execute WebKitTestRunner instead of MiniBrowser')
     return argParser
 
   def all_possible_build_options(self):
@@ -106,7 +108,6 @@ class ConfigHelper:
         self.config = {}
     else:
       with open(self.config_file, 'r') as configFile:
-        print "reading from config file"
         self.config = json.load(configFile)
 
 

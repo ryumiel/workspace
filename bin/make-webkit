@@ -30,14 +30,18 @@ def jhbuildCmd():
 
 def runCMake(options):
     working_dir = ensureBuildDir(options)
-    os.chdir(working_dir)
+    if (os.path.isfile(os.path.join(working_dir,"build.ninja"))):
+      return
 
+    print "Regenerating cmake."
     if options.wpe:
       cmakeargs = ["-DPORT=WPE", "-GNinja", "-DDEVELOPER_MODE=ON"]
       webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitWPE/')
     else:
       cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
       webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitGtk/')
+
+    cmakeargs.append("-DENABLE_INTROSPECTION=OFF")
 
     if options.disable_threaded_compositor:
       cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=OFF")
@@ -69,6 +73,7 @@ def runCMake(options):
     cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + config_helper.install_dir)
     cmakeargs.append("-DCMAKE_INSTALL_LIBDIR=lib")
 
+    os.chdir(working_dir)
     cmakeCommand = jhbuildCmd() + ["cmake", webkit_src_dir] + cmakeargs
     call(cmakeCommand)
 
@@ -84,7 +89,7 @@ def buildWebKitGtk(options):
     except subprocess.CalledProcessError, e:
       iceccd_active_status = "unknown"
 
-    print iceccd_active_status
+    print "icecc : " + iceccd_active_status
     if iceccd_active_status == "active":
       isIceccdActive = True
     elif iceccd_active_status == "unknown":
@@ -104,6 +109,9 @@ def buildWebKitGtk(options):
     os.chdir(working_dir)
 
     buildCommand = jhbuildCmd() + ["ninja-build", "-j" + str(numOfJob)]
+    if options.fast:
+      minimumTargets = ["MiniBrowser", "WebKitTestRunner", "libTestNetscapePlugIn.so", "libTestRunnerInjectedBundle.so"]
+      buildCommand = buildCommand + minimumTargets
 
     build_start_time = time.time()
     build_return = call(buildCommand)
