@@ -49,9 +49,9 @@ class ConfigHelper:
     environment['XDG_RUNTIME_DIR'] = self.xdg_runtime_dir
 
   def set_weston_env_for_client(self, environment):
-    environment['XDG_RUNTIME_DIR'] = self.xdg_runtime_dir
+    #environment['XDG_RUNTIME_DIR'] = self.xdg_runtime_dir
     environment['WAYLAND_DISPLAY'] = self.wayland_socket
-    environment['GDK_BACKEND'] = 'wayland'
+    #environment['GDK_BACKEND'] = 'wayland'
 
   def get_argument_parser(self):
 
@@ -78,6 +78,7 @@ class ConfigHelper:
     argParser.add_argument('--gdb', action='store_true', default=False, help='execute gdb for MiniBrowser')
     argParser.add_argument('--pause', action='store_true', default=False, help='Pause WebKitWebProcess to attache gdb')
     argParser.add_argument('--test', action='store_true', default=False, help='execute WebKitTestRunner instead of MiniBrowser')
+    argParser.add_argument('--scale', type=int, default=0, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
     return argParser
 
   def all_possible_build_options(self):
