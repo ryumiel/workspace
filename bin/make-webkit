@@ -99,10 +99,13 @@ def buildWebKitGtk(options):
       exit(0)
 
     set_build_environment(False, isIceccdActive)
-    if isIceccdActive:
-      numOfJob = 37
+    if options.jobs == 0:
+      if isIceccdActive:
+        numOfJob = 37
+      else:
+        numOfJob = multiprocessing.cpu_count()
     else:
-      numOfJob = multiprocessing.cpu_count()
+      numOfJob = options.jobs
 
     runCMake(options)
     working_dir = ensureBuildDir(options)
@@ -110,7 +113,7 @@ def buildWebKitGtk(options):
 
     buildCommand = jhbuildCmd() + ["ninja-build", "-j" + str(numOfJob)]
     if options.fast:
-      minimumTargets = ["MiniBrowser", "WebKitTestRunner", "libTestNetscapePlugIn.so", "libTestRunnerInjectedBundle.so"]
+      minimumTargets = ["MiniBrowser", "WebKitTestRunner", "libTestNetscapePlugIn.so", "libTestRunnerInjectedBundle.so", "WebKitWebProcess", "WebKitDatabaseProcess", "WebKitPluginProcess", "WebKitPluginProcess2", "WebKitNetworkProcess", "ImageDiff", "jsc", "LLIntOffsetsExtractor"]
       buildCommand = buildCommand + minimumTargets
 
     build_start_time = time.time()
