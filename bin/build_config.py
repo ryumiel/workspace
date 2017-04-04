@@ -76,6 +76,7 @@ class ConfigHelper:
     argParser.add_argument('--weston', action='store_true', default=False, help='Open MiniBrowser inside of Weston (default: False)')
     argParser.add_argument('--llvmpipe', action='store_true', default=False, help='Use llvmpipe as a gl backend (default: False)')
     argParser.add_argument('--gdb', action='store_true', default=False, help='execute gdb for MiniBrowser')
+    argParser.add_argument('--pause', action='store_true', default=False, help='Pause WebKitWebProcess to attache gdb')
     argParser.add_argument('--test', action='store_true', default=False, help='execute WebKitTestRunner instead of MiniBrowser')
     return argParser
 

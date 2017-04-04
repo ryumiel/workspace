@@ -13,9 +13,9 @@ def main(argv):
   minibrowser = os.path.join(config_helper.get_webkit_dir(options), 'bin/MiniBrowser')
 
   if options.url:
-    url = options.url
+    url = options.url.split()
   else:
-    url = 'http://localhost:8000'
+    url = ['http://localhost:8000']
 
   environment = os.environ
   if options.weston:
@@ -24,16 +24,19 @@ def main(argv):
   if options.llvmpipe:
     config_helper.set_llvmpipe_env(environment)
 
+  if options.pause:
+    os.environ["WEBKIT2_PAUSE_WEB_PROCESS_ON_LAUNCH"] = "1"
+
   if options.gdb:
     gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
-    cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser, url]
+    cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser] + url
   elif options.test:
     testRunner = os.path.join(config_helper.get_webkit_dir(options), 'bin/WebKitTestRunner')
     os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.get_webkit_dir(options), 'lib/libTestRunnerInjectedBundle.so')
     os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.get_webkit_dir(options), 'lib/plugins')
-    cmd = [testRunner, url]
+    cmd = [testRunner] + url
   else:
-    cmd = [minibrowser, url]
+    cmd = [minibrowser] + url
 
   jhbuild_cmd = ["jhbuild", "-f", config_helper.jhbuildrc, "run"]
   jhbuild_cmd.extend(cmd)
