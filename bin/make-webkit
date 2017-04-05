@@ -147,6 +147,9 @@ def set_build_environment(isClang, isIcecc):
         os.environ["ICECC_VERSION"]=config_helper.config['icecc_gcc_version']
 
 def main(argv):
+    config_helper.ensure_icecc_clang_env()
+    config_helper.ensure_icecc_gcc_env()
+
     argParser = config_helper.get_argument_parser()
     options = argParser.parse_args()
     atexit.register(buildFinished)

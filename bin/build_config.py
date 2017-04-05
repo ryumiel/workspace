@@ -4,8 +4,60 @@ import json
 import os
 import os.path
 import sys
+from subprocess import check_output
+import re
+import shutil
 
 class ConfigHelper:
+
+  def ensure_icecc_clang_env(self):
+    if 'icecc_clang_version' in self.config:
+      if (os.path.isfile(self.config['icecc_clang_version'])):
+        return
+
+    output = check_output(['/usr/bin/clang', '--version'])
+    version = output.split()[2]
+
+    print "Creating Icecream toolchain"
+    createEnvCmd = ['/usr/libexec/icecc/icecc-create-env', '--clang', '/usr/bin/clang']
+    output = check_output(createEnvCmd)
+    print output
+    generatedEnv = re.search(r'creating ([0-9a-f]+)\.tar.gz', output)
+    if generatedEnv is None:
+      print "Failed to find created env."
+      sys.exit(2)
+
+    generatedFileName = generatedEnv.group(1) + '.tar.gz'
+    targetFileName = os.path.join(self.resource_dir, "icecc_clang_" + version + "_" + generatedEnv.group(1) + ".tar.gz")
+
+    shutil.move(generatedFileName, targetFileName)
+    self.config['icecc_clang_version'] = targetFileName
+    self.write_config_to_file()
+
+  def ensure_icecc_gcc_env(self):
+    if 'icecc_gcc_version' in self.config:
+      if (os.path.isfile(self.config['icecc_gcc_version'])):
+        return
+
+    output = check_output(['/usr/bin/gcc', '--version'])
+    version = output.split()[2]
+
+    print "Creating Icecream toolchain"
+    createEnvCmd = ['/usr/libexec/icecc/icecc-create-env', '--gcc', '/usr/bin/gcc', '/usr/bin/g++']
+    output = check_output(createEnvCmd)
+    print output
+    generatedEnv = re.search(r'creating ([0-9a-f]+)\.tar.gz', output)
+    if generatedEnv is None:
+      print "Failed to find created env."
+      sys.exit(2)
+
+    generatedFileName = generatedEnv.group(1) + '.tar.gz'
+    targetFileName = os.path.join(self.resource_dir, "icecc_gcc_" + version + "_" + generatedEnv.group(1) + ".tar.gz")
+
+    print generatedFileName + "  " + targetFileName
+    shutil.move(generatedFileName, targetFileName)
+    self.config['icecc_gcc_version'] = targetFileName
+    self.write_config_to_file()
 
   def write_config_to_file(self):
     with open(self.config_file, 'w') as configFile:
