@@ -98,7 +98,7 @@ def buildWebKitGtk(options):
       print "Error: Cannot determine the status of iceccd"
       exit(0)
 
-    set_build_environment(False, isIceccdActive)
+    set_build_environment(options.clang, isIceccdActive)
     if options.jobs == 0:
       if isIceccdActive:
         numOfJob = 37
@@ -143,6 +143,7 @@ def set_build_environment(isClang, isIcecc):
       os.environ["CCACHE_DISABLE"]="1"
       if isClang:
         os.environ["ICECC_VERSION"]=config_helper.config['icecc_clang_version']
+        os.environ["ICECC_CLANG_REMOTE_CPP"]="1"
       else:
         os.environ["ICECC_VERSION"]=config_helper.config['icecc_gcc_version']
 
