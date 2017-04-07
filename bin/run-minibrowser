@@ -29,6 +29,9 @@ def main(argv):
   if options.pause:
     os.environ["WEBKIT2_PAUSE_WEB_PROCESS_ON_LAUNCH"] = "1"
 
+  if options.wrapper:
+    os.environ["WEB_PROCESS_CMD_PREFIX"] = options.wrapper
+
   if options.scale != 0:
     isWestonRunning = False
     for proc in psutil.process_iter():

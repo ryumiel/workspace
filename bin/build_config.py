@@ -132,6 +132,7 @@ class ConfigHelper:
     argParser.add_argument('--pause', action='store_true', default=False, help='Pause WebKitWebProcess to attache gdb')
     argParser.add_argument('--test', action='store_true', default=False, help='execute WebKitTestRunner instead of MiniBrowser')
     argParser.add_argument('--scale', type=int, default=0, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
+    argParser.add_argument('--wrapper', help='The wrapper to analize WebProcess. (e.g. valgrind)')
     return argParser
 
   def all_possible_build_options(self):
