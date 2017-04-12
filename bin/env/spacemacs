@@ -366,8 +366,8 @@ you should place your code here."
 
    ;; Multi-window mode for gdb mode
    (setq gdb-many-windows t)
-   (defun gdb-restore-windows-gud-io-and-source ()
-     "Restore GUD buffer, IO buffer and source buffer next to each other."
+   (defadvice gdb-setup-windows (after my-setup-gdb-windows activate)
+     "Create GUD buffer, IO buffer and source buffer next to each other."
      (interactive)
      ;; Select dedicated GUD buffer.
      (switch-to-buffer gud-comint-buffer)
