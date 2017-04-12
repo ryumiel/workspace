@@ -357,8 +357,8 @@ you should place your code here."
        (insert (shell-command-to-string "xsel -o -b"))
        )
      )
-   (evil-leader/set-key "o y" 'copy-to-clipboard)
-   (evil-leader/set-key "o p" 'paste-from-clipboard)
+   (evil-leader/set-key "o c y" 'copy-to-clipboard)
+   (evil-leader/set-key "o c p" 'paste-from-clipboard)
 
    ;; Multi-window mode for gdb mode
    (setq gdb-many-windows t)
