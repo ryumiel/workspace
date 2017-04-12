@@ -359,6 +359,10 @@ you should place your code here."
      )
    (evil-leader/set-key "o c y" 'copy-to-clipboard)
    (evil-leader/set-key "o c p" 'paste-from-clipboard)
+   ;; Enable mouse support
+   (unless window-system
+     (global-set-key (kbd "<mouse-4>") 'scroll-down-line)
+     (global-set-key (kbd "<mouse-5>") 'scroll-up-line))
 
    ;; Multi-window mode for gdb mode
    (setq gdb-many-windows t)
