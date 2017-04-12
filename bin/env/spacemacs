@@ -374,11 +374,11 @@ you should place your code here."
      (delete-other-windows)
      (set-window-dedicated-p (get-buffer-window) t)
      (when (or gud-last-last-frame gdb-show-main)
-       (let ((side-win (split-window nil nil t))
+       (let ((side-win (split-window nil (round (* 0.35 (window-width))) t))
              (bottom-win (split-window))
              (middle-win (split-window)))
          (let ((bottom-right-win
-                (split-window side-win (- (* 2 (window-height)) 1))))
+                (split-window side-win (round (* 2.3 (window-height))))))
            ;; Put source to the right.
            (set-window-buffer
             side-win
