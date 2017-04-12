@@ -359,6 +359,49 @@ you should place your code here."
      )
    (evil-leader/set-key "o y" 'copy-to-clipboard)
    (evil-leader/set-key "o p" 'paste-from-clipboard)
+
+   ;; Multi-window mode for gdb mode
+   (setq gdb-many-windows t)
+   (defun gdb-restore-windows-gud-io-and-source ()
+     "Restore GUD buffer, IO buffer and source buffer next to each other."
+     (interactive)
+     ;; Select dedicated GUD buffer.
+     (switch-to-buffer gud-comint-buffer)
+     (delete-other-windows)
+     (set-window-dedicated-p (get-buffer-window) t)
+     (when (or gud-last-last-frame gdb-show-main)
+       (let ((side-win (split-window nil nil t))
+             (bottom-win (split-window))
+             (middle-win (split-window)))
+         (let ((bottom-right-win
+                (split-window side-win (- (* 2 (window-height)) 1))))
+           ;; Put source to the right.
+           (set-window-buffer
+            side-win
+            (if gud-last-last-frame
+                (gud-find-file (car gud-last-last-frame))
+              (gud-find-file gdb-main-file)))
+           (setq gdb-source-window side-win)
+           ;; Show dedicated IO buffer in the middle
+           (set-window-buffer
+            middle-win
+            (gdb-get-buffer-create 'gdb-inferior-io))
+           (set-window-dedicated-p middle-win t)
+           ;; Stack at the bottom left
+           (set-window-buffer
+            bottom-win
+            (gdb-get-buffer-create 'gdb-stack-buffer))
+           (set-window-dedicated-p bottom-win t)
+           ;; Local vars at the bottom right
+           (set-window-buffer
+            bottom-right-win
+            (gdb-get-buffer-create 'gdb-locals-buffer))
+           (set-window-dedicated-p bottom-right-win t)
+           ))))
+   (add-hook 'gdb-mode-hook '(lambda ()
+                               (define-key gud-mode-map [(f5)] 'gud-go)
+                               (define-key gud-mode-map [(f7)] 'gud-next)
+                               (define-key gud-mode-map [(f8)] 'gud-step)))
   )
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
