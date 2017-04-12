@@ -291,7 +291,7 @@ values."
    ;; The default package repository used if no explicit repository has been
    ;; specified with an installed package.
    ;; Not used for now. (default nil)
-   dotspacemacs-default-package-repository nil
+   dotspacemacs-default-package-repository 'melpa-stable
    ;; Delete whitespace while saving buffer. Possible values are `all'
    ;; to aggressively delete empty line and long sequences of whitespace,
    ;; `trailing' to delete only the whitespace at end of lines, `changed'to
