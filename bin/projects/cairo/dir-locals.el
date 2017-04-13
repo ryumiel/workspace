@@ -2,7 +2,8 @@
 ;;; For more information see (info "(emacs) Directory Variables")
 
 ((c-mode . ((indent-tabs-mode . t)
-            (c-basic-offset . 4)))
+            (c-basic-offset . 4)
+            (tab-width . 8)))
  (nil . ((projectile-project-compilation-cmd . "make -j8 all")
          (projectile-project-test-cmd . "CAIRO_TEST_TARGET=image CAIRO_TEST_TARGET_FORMAT=rgb test/cairo-test-suite clip-complex-shape-with-mixed-antialias")
          (projectile-project-compilation-dir . "./")
