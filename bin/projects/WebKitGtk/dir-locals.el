@@ -5,9 +5,7 @@
 ((c-mode
   (indent-tabs-mode . nil)
   (c-basic-offset . 4))
- (c++-mode
-  (indent-tabs-mode . nil)
-  (c-basic-offset . 4))
+ (c++-mode . ((c-file-style . "WebKit")))
  (java-mode
   (indent-tabs-mode . nil)
   (c-basic-offset . 4))
