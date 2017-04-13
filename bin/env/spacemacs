@@ -406,6 +406,11 @@ you should place your code here."
                                (define-key gud-mode-map [(f5)] 'gud-go)
                                (define-key gud-mode-map [(f7)] 'gud-next)
                                (define-key gud-mode-map [(f8)] 'gud-step)))
+
+   (put 'gud-gdb-command-name 'safe-local-variable 'stringp)
+   (put 'projectile-project-compilation-dir 'safe-local-variable 'stringp)
+   (put 'projectile-project-test-cmd 'safe-local-variable 'stringp)
+   (put 'projectile-project-compilation-cmd 'safe-local-variable 'stringp)
   )
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
