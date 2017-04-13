@@ -1,0 +1,4 @@
+set environment CAIRO_TEST_TARGET image
+set environment CAIRO_TEST_TARGET_FORMAT rgb
+set args -f clip-complex-shape-with-mixed-antialias
+
