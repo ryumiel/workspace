@@ -146,6 +146,7 @@ class ConfigHelper:
   def __init__(self):
     self.script_dir = os.path.dirname(os.path.realpath(__file__))
     self.resource_dir = os.path.join(self.script_dir, 'resource/')
+    self.project_settings_dir = os.path.join(self.script_dir, 'projects/WebKitGtk/')
     self.workspace_dir = os.path.abspath(os.path.join(self.script_dir, os.pardir))
     self.build_dir = os.path.join(self.workspace_dir, 'out/')
     self.install_dir = os.path.join(self.workspace_dir, 'Dependencies/Root')

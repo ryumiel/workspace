@@ -329,7 +329,6 @@ you should place your code here."
                                             (member-init-intro . +)
                                             (topmost-intro . 0)
                                             (arglist-cont-nonempty . +)))))
-   (setq shell-file-name "/bin/sh")
    (set-variable 'ycmd-server-command '("python" "/home/yoon/webkit/ycmd/ycmd"))
    (set-variable 'ycmd-set-startup-timeout 15)
    (setq projectile-enable-caching t)
@@ -412,10 +411,21 @@ you should place your code here."
                                (define-key gud-mode-map [(f7)] 'gud-next)
                                (define-key gud-mode-map [(f8)] 'gud-step)))
 
+   ;; GDB set up for WebKit
+   (defun attach-to-webkit-webprocess()
+     "Attach to running WebKitWebProcess from debug build."
+     (interactive)
+     (let ((gdb-cmd (shell-command-to-string "debug-webkitwebprocess")))
+       (message gdb-cmd)
+       (gdb gdb-cmd)))
+   (evil-leader/set-key "o g a" 'attach-to-webkit-webprocess)
+
    (put 'gud-gdb-command-name 'safe-local-variable 'stringp)
    (put 'projectile-project-compilation-dir 'safe-local-variable 'stringp)
    (put 'projectile-project-test-cmd 'safe-local-variable 'stringp)
    (put 'projectile-project-compilation-cmd 'safe-local-variable 'stringp)
+   (put 'projectile-project-root 'safe-local-variable 'stringp)
+   (put 'projectile-project-run-cmd 'safe-local-variable 'stringp)
   )
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.

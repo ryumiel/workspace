@@ -45,7 +45,7 @@ def main(argv):
     config_helper.set_weston_env_for_client(environment)
 
   if options.gdb:
-    gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
+    gdbinit = os.path.join(config_helper.project_settings_dir, "gdbinit")
     cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser] + url
   elif options.test:
     testRunner = os.path.join(config_helper.get_webkit_dir(options), 'bin/WebKitTestRunner')
