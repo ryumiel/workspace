@@ -390,20 +390,20 @@ you should place your code here."
                 (gud-find-file (car gud-last-last-frame))
               (gud-find-file gdb-main-file)))
            (setq gdb-source-window side-win)
-           ;; Show dedicated IO buffer in the middle
+           ;; Show local vars in the middle
            (set-window-buffer
             middle-win
-            (gdb-get-buffer-create 'gdb-inferior-io))
+            (gdb-get-buffer-create 'gdb-locals-buffer))
            (set-window-dedicated-p middle-win t)
-           ;; Stack at the bottom left
+           ;; Breakpoints at the bottom left
            (set-window-buffer
             bottom-win
-            (gdb-get-buffer-create 'gdb-stack-buffer))
+            (gdb-get-buffer-create 'gdb-breakpoints-buffer))
            (set-window-dedicated-p bottom-win t)
-           ;; Local vars at the bottom right
+           ;; Stack frames at the bottom right
            (set-window-buffer
             bottom-right-win
-            (gdb-get-buffer-create 'gdb-locals-buffer))
+            (gdb-get-buffer-create 'gdb-stack-buffer))
            (set-window-dedicated-p bottom-right-win t)
            ))))
    (add-hook 'gdb-mode-hook '(lambda ()
