@@ -72,17 +72,16 @@ class GDB():
   def __init__(self):
     webprocess_name = 'WebKitWebProcess'
 
-    print "Finding " + webprocess_name + "..."
     process_list = find_process(webprocess_name)
     if len(process_list) < 1:
       print "Unable to find target process"
       sys.exit(0)
 
     proc = select_target_process(process_list)
-    gdbinit = os.path.join(config_helper.resource_dir, "gdbinit")
-    self.gdb_cmd = ["cgdb", "--", "-init-command", gdbinit, "-pid", str(proc.pid)]
-    print ' '.join(self.gdb_cmd)
-    pyperclip.copy(' '.join(self.gdb_cmd));
+    gdbinit = os.path.join(config_helper.project_settings_dir, "gdbinit")
+    self.gdb_cmd = ["gdb", "-i=mi", str(proc.exe()), "--init-command", gdbinit, "-pid", str(proc.pid)]
+    sys.stdout.write(' '.join(self.gdb_cmd));
+    #pyperclip.copy(' '.join(self.gdb_cmd));
 
 def main(argv):
   gdb = GDB()

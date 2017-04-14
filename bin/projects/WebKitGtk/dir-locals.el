@@ -11,8 +11,9 @@
   (c-basic-offset . 4))
  (change-log-mode
   (indent-tabs-mode . nil))
- (nil . ((projectile-project-compilation-cmd . "make -j8 all")
-         (projectile-project-test-cmd . "CAIRO_TEST_TARGET=image CAIRO_TEST_TARGET_FORMAT=rgb test/cairo-test-suite clip-complex-shape-with-mixed-antialias")
+ (nil . ((projectile-project-compilation-cmd . "make-webkit --fast --debug")
+         (projectile-project-run-cmd . "run-minibrowser --debug")
+         (projectile-project-test-cmd . "run-minibrowser --debug --wrapper '/usr/bin/gdbserver localhost:8080' --url")
          (projectile-project-compilation-dir . "./")
-         (gud-gdb-command-name . "gdb -i=mi --init-command /home/yoon/webkit/bin/projects/cairo/gdbinit")))
+         (gud-gdb-command-name . (concat "cd " (file-name-directory (locate-dominating-file default-directory dir-locals-file)) "&& /usr/bin/gdb -i=mi --init-command /home/yoon/webkit/bin/projects/WebKitGtk/gdbinit -q WebKitWebProcess"))))
 )
