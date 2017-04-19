@@ -113,7 +113,7 @@ def buildWebKitGtk(options):
 
     buildCommand = jhbuildCmd() + ["ninja-build", "-j" + str(numOfJob)]
     if options.fast:
-      minimumTargets = ["MiniBrowser", "WebKitTestRunner", "libTestNetscapePlugIn.so", "libTestRunnerInjectedBundle.so", "WebKitWebProcess", "WebKitDatabaseProcess", "WebKitPluginProcess", "WebKitPluginProcess2", "WebKitNetworkProcess", "ImageDiff", "jsc", "LLIntOffsetsExtractor"]
+      minimumTargets = ["MiniBrowser", "WebKitTestRunner", "libTestNetscapePlugIn.so", "libTestRunnerInjectedBundle.so", "lib/libwebkit2gtkinjectedbundle.so", "WebKitWebProcess", "WebKitDatabaseProcess", "WebKitPluginProcess", "WebKitPluginProcess2", "WebKitNetworkProcess", "ImageDiff", "jsc", "LLIntOffsetsExtractor"]
       buildCommand = buildCommand + minimumTargets
 
     build_start_time = time.time()

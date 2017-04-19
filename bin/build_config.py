@@ -70,16 +70,6 @@ class ConfigHelper:
     elif not options.debug:
       name = 'Release'
 
-    if options.wpe:
-      name = name + 'WPE'
-
-    if options.use_gles:
-      name = name + 'GLES'
-    if options.disable_threaded_compositor:
-      name = name + 'NoTC'
-    if options.disable_gstgl:
-      name = name + 'NoGstGL'
-
     return os.path.join(self.build_dir, name + '/')
 
   def set_llvmpipe_env(self, environment):
@@ -148,7 +138,9 @@ class ConfigHelper:
     self.resource_dir = os.path.join(self.script_dir, 'resource/')
     self.project_settings_dir = os.path.join(self.script_dir, 'projects/WebKitGtk/')
     self.workspace_dir = os.path.abspath(os.path.join(self.script_dir, os.pardir))
-    self.build_dir = os.path.join(self.workspace_dir, 'out/')
+    self.workspace_dir = os.path.join(self.workspace_dir, 'WebKitGtk/')
+    self.jhbuild_wrapper = os.path.join(self.workspace_dir, "Tools/jhbuild/jhbuild-wrapper")
+    self.build_dir = os.path.join(self.workspace_dir, 'WebKitBuild/')
     self.install_dir = os.path.join(self.workspace_dir, 'Dependencies/Root')
     self.jhbuild_src_dir = os.path.join(self.workspace_dir, 'Dependencies/Source')
     self.config_file = os.path.join(self.script_dir, "config.json")

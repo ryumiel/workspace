@@ -51,7 +51,7 @@ def find_process(proc_name):
   i = 0;
   for proc in psutil.process_iter():
     if proc.name() == proc_name:
-      if config_helper.build_dir not in proc.exe():
+      if "WebKitBuild" not in proc.exe():
         continue
       else:
         process_list.append(mkDict(i, proc, ""))
@@ -79,7 +79,10 @@ class GDB():
 
     proc = select_target_process(process_list)
     gdbinit = os.path.join(config_helper.project_settings_dir, "gdbinit")
-    self.gdb_cmd = ["gdb", "-i=mi", str(proc.exe()), "--init-command", gdbinit, "-pid", str(proc.pid)]
+    sourcepath = os.path.join(os.path.dirname(proc.exe()), "../")
+
+    #self.gdb_cmd = ["cgdb", "--", str(proc.exe()), "--init-command", gdbinit, "-pid", str(proc.pid), "-cd=" + sourcepath]
+    self.gdb_cmd = ["gdb", "-i=mi", str(proc.exe()), "--init-command", gdbinit, "-pid", str(proc.pid), "-cd=" + sourcepath]
     sys.stdout.write(' '.join(self.gdb_cmd));
     #pyperclip.copy(' '.join(self.gdb_cmd));
 

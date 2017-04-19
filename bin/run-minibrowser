@@ -6,25 +6,56 @@ from subprocess import Popen
 import os
 import sys
 import psutil
+import argparse
 
 config_helper = ConfigHelper()
 
+def get_argument_parser():
+  argParser = argparse.ArgumentParser(description='Webkit dev script using custom jhbuild env')
+  argParser.add_argument('--release', action='store_false', dest='debug', default=False, help='Compile with Debug configuration (default: Release)')
+  argParser.add_argument('--debug', action='store_true', default=False, help='Compile with Debug configuration (default: Release)')
+  argParser.add_argument('--gdb', action='store_true', default=False, help='execute gdb for MiniBrowser')
+  argParser.add_argument('--pause', action='store_true', default=False, help='Pause WebKitWebProcess to attache gdb')
+  argParser.add_argument('--test', action='store_true', default=False, help='execute WebKitTestRunner instead of MiniBrowser')
+  argParser.add_argument('--weston', action='store_true', default=False, help='Open MiniBrowser inside of Weston (default: False)')
+  argParser.add_argument('--scale', type=int, default=0, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
+
+  argParser.add_argument('--wrapper', help='The wrapper to analize WebProcess. (e.g. valgrind)')
+  argParser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for Minibrowser or WebKitTestRunner')
+  return argParser
+
 def main(argv):
-  argParser = config_helper.get_argument_parser()
+  argParser = get_argument_parser()
   options = argParser.parse_args()
   minibrowser = os.path.join(config_helper.get_webkit_dir(options), 'bin/MiniBrowser')
 
-  if options.url:
-    url = options.url.split()
+  if options.args:
+    args = filter(lambda a: a != '--', options.args)
   else:
-    url = ['http://localhost:8000']
+    args = ['http://localhost:8000']
+
+  if options.scale == 0:
+    options.scale = 1
 
   environment = os.environ
   if options.weston:
+    is_weston_running = False
+    for proc in psutil.process_iter():
+      if proc.name() == "weston":
+        is_weston_running = True
+
+    if not is_weston_running:
+      weston_cmd = ["weston", '--socket=' + config_helper.wayland_socket, "--scale=" + str(options.scale), '--width=800', '--height=480']
+      weston_proc = Popen(weston_cmd, stdin=None, stdout=None, stderr=None, close_fds=True)
+
     config_helper.set_weston_env_for_client(environment)
 
-  if options.llvmpipe:
-    config_helper.set_llvmpipe_env(environment)
+  else:
+    os.environ["GDK_BACKEND"] = "x11"
+    os.environ["GDK_SCALE"] = str(options.scale)
+
+  #if options.llvmpipe:
+  #  config_helper.set_llvmpipe_env(environment)
 
   if options.pause:
     os.environ["WEBKIT2_PAUSE_WEB_PROCESS_ON_LAUNCH"] = "1"
@@ -32,32 +63,20 @@ def main(argv):
   if options.wrapper:
     os.environ["WEB_PROCESS_CMD_PREFIX"] = options.wrapper
 
-  if options.scale != 0:
-    isWestonRunning = False
-    for proc in psutil.process_iter():
-      if proc.name() == "weston":
-        isWestonRunning = True
-
-    if not isWestonRunning:
-      mutterCmd = ["weston", '--socket=' + config_helper.wayland_socket, "--scale=" + str(options.scale), '--width=800', '--height=600']
-      mutterProc = Popen(mutterCmd, stdin=None, stdout=None, stderr=None, close_fds=True)
-
-    config_helper.set_weston_env_for_client(environment)
-
   if options.gdb:
     gdbinit = os.path.join(config_helper.project_settings_dir, "gdbinit")
-    cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser] + url
+    cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser] + args
   elif options.test:
     testRunner = os.path.join(config_helper.get_webkit_dir(options), 'bin/WebKitTestRunner')
     os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.get_webkit_dir(options), 'lib/libTestRunnerInjectedBundle.so')
     os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.get_webkit_dir(options), 'lib/plugins')
-    cmd = [testRunner] + url
+    cmd = [testRunner] + args
   else:
-    cmd = [minibrowser] + url
+    cmd = [minibrowser] + args
 
-  jhbuild_cmd = ["jhbuild", "-f", config_helper.jhbuildrc, "run"]
+  os.environ["WEBKIT_SHOW_COMPOSITING_DEBUG_VISUALS"] = "1"
+  jhbuild_cmd = [config_helper.jhbuild_wrapper, "--gtk", "run"]
   jhbuild_cmd.extend(cmd)
-  print jhbuild_cmd
   call(jhbuild_cmd)
 
 if __name__ == '__main__':
