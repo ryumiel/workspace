@@ -426,6 +426,15 @@ you should place your code here."
    (put 'projectile-project-compilation-cmd 'safe-local-variable 'stringp)
    (put 'projectile-project-root 'safe-local-variable 'stringp)
    (put 'projectile-project-run-cmd 'safe-local-variable 'stringp)
+
+   ;; Save all tempfiles in $TMPDIR/emacs$UID/
+   (defconst emacs-tmp-dir (expand-file-name (format "emacs%d" (user-uid)) temporary-file-directory))
+   (setq backup-directory-alist
+       `((".*" . ,emacs-tmp-dir)))
+   (setq auto-save-file-name-transforms
+       `((".*" ,emacs-tmp-dir t)))
+   (setq auto-save-list-file-prefix
+       emacs-tmp-dir)
   )
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
