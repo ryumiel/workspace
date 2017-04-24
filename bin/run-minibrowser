@@ -7,8 +7,16 @@ import os
 import sys
 import psutil
 import argparse
+import atexit
 
 config_helper = ConfigHelper()
+weston_proc = None
+
+def close_weston():
+  if weston_proc is None:
+    return
+  weston_proc.terminate()
+
 
 def get_argument_parser():
   argParser = argparse.ArgumentParser(description='Webkit dev script using custom jhbuild env')
@@ -20,6 +28,8 @@ def get_argument_parser():
   argParser.add_argument('--weston', action='store_true', default=False, help='Open MiniBrowser inside of Weston (default: False)')
   argParser.add_argument('--scale', type=int, default=0, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
 
+  argParser.add_argument('--custom', action='store_true', default=False, help='Use custom jhbuild environment for MiniBrowser')
+
   argParser.add_argument('--wrapper', help='The wrapper to analize WebProcess. (e.g. valgrind)')
   argParser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for Minibrowser or WebKitTestRunner')
   return argParser
@@ -27,7 +37,7 @@ def get_argument_parser():
 def main(argv):
   argParser = get_argument_parser()
   options = argParser.parse_args()
-  minibrowser = os.path.join(config_helper.get_webkit_dir(options), 'bin/MiniBrowser')
+  minibrowser = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'bin/MiniBrowser')
 
   if options.args:
     args = filter(lambda a: a != '--', options.args)
@@ -45,8 +55,11 @@ def main(argv):
         is_weston_running = True
 
     if not is_weston_running:
-      weston_cmd = ["weston", '--socket=' + config_helper.wayland_socket, "--scale=" + str(options.scale), '--width=800', '--height=480']
+      width = 940 / options.scale
+      height = 980 / options.scale
+      weston_cmd = ["weston", '--config=' + os.path.join(config_helper.resource_dir, 'weston.ini'), '--socket=' + config_helper.wayland_socket, "--scale=" + str(options.scale), '--width=' + str(width), '--height=' + str(height)]
       weston_proc = Popen(weston_cmd, stdin=None, stdout=None, stderr=None, close_fds=True)
+      atexit.register(close_weston)
 
     config_helper.set_weston_env_for_client(environment)
 
@@ -67,15 +80,19 @@ def main(argv):
     gdbinit = os.path.join(config_helper.project_settings_dir, "gdbinit")
     cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser] + args
   elif options.test:
-    testRunner = os.path.join(config_helper.get_webkit_dir(options), 'bin/WebKitTestRunner')
-    os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.get_webkit_dir(options), 'lib/libTestRunnerInjectedBundle.so')
-    os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.get_webkit_dir(options), 'lib/plugins')
+    testRunner = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'bin/WebKitTestRunner')
+    os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'lib/libTestRunnerInjectedBundle.so')
+    os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'lib/plugins')
     cmd = [testRunner] + args
   else:
     cmd = [minibrowser] + args
 
   os.environ["WEBKIT_SHOW_COMPOSITING_DEBUG_VISUALS"] = "1"
-  jhbuild_cmd = [config_helper.jhbuild_wrapper, "--gtk", "run"]
+  if not options.custom:
+    jhbuild_cmd = [config_helper.jhbuild_wrapper, "--gtk", "run"]
+  else:
+    jhbuild_cmd = ["jhbuild", "-f", config_helper.jhbuildrc, "run"]
+
   jhbuild_cmd.extend(cmd)
   call(jhbuild_cmd)
 

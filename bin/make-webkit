@@ -15,7 +15,7 @@ startTime = time.time()
 config_helper = ConfigHelper()
 
 def ensureBuildDir(options):
-    target_dir = config_helper.get_webkit_dir(options)
+    target_dir = config_helper.get_webkit_dir(options, True)
 
     if target_dir is None:
       print "Error: Invalid build dir"
@@ -34,19 +34,11 @@ def runCMake(options):
       return
 
     print "Regenerating cmake."
-    if options.wpe:
-      cmakeargs = ["-DPORT=WPE", "-GNinja", "-DDEVELOPER_MODE=ON"]
-      webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitWPE/')
-    else:
-      cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
-      webkit_src_dir = os.path.join(config_helper.workspace_dir, 'WebKitGtk/')
+    cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
+    webkit_src_dir = os.path.join(config_helper.workspace_dir)
 
     cmakeargs.append("-DENABLE_INTROSPECTION=OFF")
-
-    if options.disable_threaded_compositor:
-      cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=OFF")
-    elif not options.disable_threaded_compositor:
-      cmakeargs.append("-DENABLE_THREADED_COMPOSITOR=ON")
+    cmakeargs.append("-DENABLE_API_TESTS=OFF")
 
     if options.use_gles:
       cmakeargs.append("-DENABLE_GLES2=ON")
@@ -62,13 +54,10 @@ def runCMake(options):
 
     if options.debug:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
-        cmakeargs.append("-DDEBUG_FISSION=ON")
     else:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Release")
-        cmakeargs.append("-DDEBUG_FISSION=OFF")
 
     cmakeargs.append("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
-    #cmakeargs.append("-DUSE_REDIRECTED_XCOMPOSITE_WINDOW=OFF")
 
     cmakeargs.append("-DCMAKE_INSTALL_PREFIX=" + config_helper.install_dir)
     cmakeargs.append("-DCMAKE_INSTALL_LIBDIR=lib")

@@ -64,13 +64,16 @@ class ConfigHelper:
       print "writing to config file"
       json.dump(self.config, configFile, sort_keys=True, indent=4, separators=(',', ': '))
 
-  def get_webkit_dir(self, options):
+  def get_webkit_dir(self, options, use_custom_jhbuild = False):
     if options.debug:
       name = 'Debug'
     elif not options.debug:
       name = 'Release'
 
-    return os.path.join(self.build_dir, name + '/')
+    if not use_custom_jhbuild:
+      return os.path.join(self.build_dir, name + '/')
+    else:
+      return os.path.join(self.custom_build_dir, name + '/')
 
   def set_llvmpipe_env(self, environment):
     llvmpipe_libgl_path = os.path.abspath(os.path.join(self.install_dir, 'softGL', 'lib'))
@@ -137,20 +140,25 @@ class ConfigHelper:
     self.script_dir = os.path.dirname(os.path.realpath(__file__))
     self.resource_dir = os.path.join(self.script_dir, 'resource/')
     self.project_settings_dir = os.path.join(self.script_dir, 'projects/WebKitGtk/')
-    self.workspace_dir = os.path.abspath(os.path.join(self.script_dir, os.pardir))
-    self.workspace_dir = os.path.join(self.workspace_dir, 'WebKitGtk/')
-    self.jhbuild_wrapper = os.path.join(self.workspace_dir, "Tools/jhbuild/jhbuild-wrapper")
-    self.build_dir = os.path.join(self.workspace_dir, 'WebKitBuild/')
-    self.install_dir = os.path.join(self.workspace_dir, 'Dependencies/Root')
-    self.jhbuild_src_dir = os.path.join(self.workspace_dir, 'Dependencies/Source')
     self.config_file = os.path.join(self.script_dir, "config.json")
     self.build_finished_sound_file = os.path.join(self.resource_dir, "build_finished.wav")
+
+    self.base_workspace_dir = os.path.abspath(os.path.join(self.script_dir, os.pardir))
+    #Settings for default jhbuild sets
+    self.workspace_dir = os.path.join(self.base_workspace_dir, 'WebKitGtk/')
+    self.jhbuild_wrapper = os.path.join(self.workspace_dir, "Tools/jhbuild/jhbuild-wrapper")
+    self.build_dir = os.path.join(self.workspace_dir, 'WebKitBuild/')
+
+    #Settings for custom jhbuild sets
+    self.custom_build_dir = os.path.join(self.base_workspace_dir, 'out/')
+    self.install_dir = os.path.join(self.base_workspace_dir, 'Dependencies/Root')
+    self.jhbuild_src_dir = os.path.join(self.base_workspace_dir, 'Dependencies/Source')
+    self.jhbuildrc = os.path.join(self.script_dir, "jhbuildrc")
 
     self.wayland_socket = 'wpe-test'
     self.xdg_runtime_dir = os.path.join(self.script_dir, 'tmp')
 
     self.llvm_install_prefix = '/usr/local'
-    self.jhbuildrc = os.path.join(self.script_dir, "jhbuildrc")
 
     if not os.path.isfile(self.config_file):
       with open(self.config_file, 'w') as configFile:
