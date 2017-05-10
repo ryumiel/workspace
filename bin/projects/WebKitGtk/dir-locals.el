@@ -11,7 +11,7 @@
   (c-basic-offset . 4))
  (change-log-mode
   (indent-tabs-mode . nil))
- (nil . ((projectile-project-compilation-cmd . "build-webkit --fast --debug")
+ (nil . ((projectile-project-compilation-cmd . "build-webkit --fast")
          (projectile-project-run-cmd . "run-minibrowser --debug")
          (projectile-project-test-cmd . "run-minibrowser --debug --wrapper '/usr/bin/gdbserver localhost:8080' --test --url '--no-timeout --show-webview ")
          (projectile-project-compilation-dir . "./")
