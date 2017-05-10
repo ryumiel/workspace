@@ -35,7 +35,7 @@
   </autotools>
 
   <autotools id="cairo">
-    <autogenargs value="--enable-gl=yes --enable-egl=yes --enable-glx=yes"/>
+    <autogenargs value="--enable-gl=yes --enable-egl=yes --enable-glx=yes CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'"/>
     <branch repo="git.freedesktop.org">
     </branch>
   </autotools>
