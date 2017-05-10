@@ -116,7 +116,7 @@ class ConfigHelper:
     argParser.add_argument('--all', action='store_true', default=False, help='Build WebKit with all possible configurations (default: False)')
     argParser.add_argument('--fast', action='store_true', default=False, help='Compile only selected components (default: False)')
     argParser.add_argument('-j', '--jobs', type=int, default=0, help='Number of compiling jobs')
-    argParser.add_argument('--clang', action='store_true', default=True, help='Use clang instead of gcc (default: True)')
+    argParser.add_argument('--clang', action='store_true', default=False, help='Use clang instead of gcc (default: True)')
 
     argParser.add_argument('--disable-threaded-compositor', action='store_true', dest='disable_threaded_compositor', default=False, help='Disable Threaded Compositor (default: False)')
     argParser.add_argument('--disable-gst-gl', action='store_true', dest='disable_gstgl', default=False, help='Disable Gst GL (default: False)')
