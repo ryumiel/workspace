@@ -1,0 +1,4 @@
+## Execute commands after the symbol loading of GDB finished
+
+# Load webkit library
+load-webkit

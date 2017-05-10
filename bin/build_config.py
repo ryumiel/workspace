@@ -71,6 +71,9 @@ class ConfigHelper:
     elif not options.debug:
       name = 'Release'
 
+    if options.wpe:
+      name = name + 'WPE'
+
     if not use_custom_jhbuild:
       return os.path.join(self.build_dir, name + '/')
     else:
@@ -141,15 +144,27 @@ class ConfigHelper:
           for_debug = ('--debug', ) + subset
           yield self.get_argument_parser().parse_args(for_debug)
 
+  def get_source_dir(self, is_wpe = False):
+    if not is_wpe:
+      return os.path.join(self.base_workspace_dir, 'WebKitGtk/')
+    else:
+      return os.path.join(self.base_workspace_dir, 'WebKitWPE/')
+
+  def get_project_settings_dir(self, is_wpe = False):
+    if not is_wpe:
+      return os.path.join(self.script_dir, 'projects/WebKitGtk/')
+    else:
+      return os.path.join(self.script_dir, 'projects/WebKitWPE/')
+
   def __init__(self):
     self.script_dir = os.path.dirname(os.path.realpath(__file__))
     self.resource_dir = os.path.join(self.script_dir, 'resource/')
-    self.project_settings_dir = os.path.join(self.script_dir, 'projects/WebKitGtk/')
     self.config_file = os.path.join(self.script_dir, "config.json")
     self.build_finished_sound_file = os.path.join(self.resource_dir, "build_finished.wav")
 
     self.base_workspace_dir = os.path.abspath(os.path.join(self.script_dir, os.pardir))
     #Settings for default jhbuild sets
+
     self.workspace_dir = os.path.join(self.base_workspace_dir, 'WebKitGtk/')
     self.jhbuild_wrapper = os.path.join(self.workspace_dir, "Tools/jhbuild/jhbuild-wrapper")
     self.build_dir = os.path.join(self.workspace_dir, 'WebKitBuild/')
@@ -160,6 +175,7 @@ class ConfigHelper:
     self.jhbuild_src_dir = os.path.join(self.base_workspace_dir, 'Dependencies/Source')
     self.jhbuildrc = os.path.join(self.script_dir, "jhbuildrc")
 
+    self.dyz_dir = os.path.join(self.base_workspace_dir, "dyz/")
     self.wayland_socket = 'wpe-test'
     self.xdg_runtime_dir = '/tmp/weston-runtime-dir'
 

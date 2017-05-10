@@ -1,0 +1,22 @@
+#set history filename .gdb_history
+#set history save on
+#set breakpoint pending on
+
+## To avoid the gdb problem we disables demangling at start up
+set demangle-style none
+
+## To reduce memory usages we disables the auto loading of the symbols except libwebkit2gtk-4
+#set auto-solib-add off
+
+## Load target shared library
+define load-webkit
+    sharedlibrary libWPE
+    sharedlibrary libc
+    sharedlibrary glib
+    set demangle-style auto
+end
+
+python
+import sys
+sys.path.insert(0, "/home/yoon/webkit/WebKitWPE/Tools/gdb/")
+import webkit

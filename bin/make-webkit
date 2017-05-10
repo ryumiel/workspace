@@ -34,23 +34,31 @@ def runCMake(options):
       return
 
     print "Regenerating cmake."
-    cmakeargs = ["-DPORT=GTK", "-GNinja", "-DDEVELOPER_MODE=ON"]
-    webkit_src_dir = os.path.join(config_helper.workspace_dir)
+    if options.wpe:
+      port = "-DPORT=WPE"
+      options.use_gles = True
+    else:
+      port = "-DPORT=GTK"
 
-    cmakeargs.append("-DENABLE_INTROSPECTION=OFF")
-    cmakeargs.append("-DENABLE_API_TESTS=OFF")
+    webkit_src_dir = config_helper.get_source_dir(options.wpe)
 
-    if options.use_gles:
-      cmakeargs.append("-DENABLE_GLES2=ON")
-      cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=OFF")
-    elif not options.use_gles:
-      cmakeargs.append("-DENABLE_GLES2=OFF")
-      cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=ON")
+    cmakeargs = [port, "-GNinja", "-DDEVELOPER_MODE=ON"]
 
-    if options.disable_gstgl:
-      cmakeargs.append("-DUSE_GSTREAMER_GL=OFF")
-    elif not options.disable_gstgl:
-      cmakeargs.append("-DUSE_GSTREAMER_GL=ON")
+    if not options.wpe:
+      cmakeargs.append("-DENABLE_INTROSPECTION=OFF")
+      cmakeargs.append("-DENABLE_API_TESTS=OFF")
+
+      if options.use_gles:
+        cmakeargs.append("-DENABLE_GLES2=ON")
+        cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=OFF")
+      elif not options.use_gles:
+        cmakeargs.append("-DENABLE_GLES2=OFF")
+        cmakeargs.append("-DENABLE_ACCELERATED_2D_CANVAS=ON")
+
+      if options.disable_gstgl:
+        cmakeargs.append("-DUSE_GSTREAMER_GL=OFF")
+      elif not options.disable_gstgl:
+        cmakeargs.append("-DUSE_GSTREAMER_GL=ON")
 
     if options.debug:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")

@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
 from build_config import ConfigHelper
-import sys
-import psutil
+import argparse
 import atexit
-import os
 import datetime
-import subprocess
-import signal
+import os
+import psutil
 import pyperclip
+import signal
+import subprocess
+import sys
 
 config_helper = ConfigHelper()
 
@@ -50,12 +51,9 @@ def find_process(proc_name):
 
   i = 0;
   for proc in psutil.process_iter():
-    if proc.name() == proc_name:
-      if "WebKitBuild" not in proc.exe():
-        continue
-      else:
-        process_list.append(mkDict(i, proc, ""))
-        i += 1
+    if proc.name() == proc_name and ((config_helper.workspace_dir in proc.exe()) or (config_helper.custom_build_dir in proc.exe())):
+      process_list.append(mkDict(i, proc, ""))
+      i += 1
   return process_list
 
 class GDB():
@@ -69,8 +67,11 @@ class GDB():
     self.gdb_ps = subprocess.Popen(self.gdb_cmd)
     self.gdb_ps.wait()
 
-  def __init__(self):
-    webprocess_name = 'WebKitWebProcess'
+  def __init__(self, is_cgdb, is_wpe):
+    if is_wpe:
+      webprocess_name = 'WPEWebProcess'
+    else:
+      webprocess_name = 'WebKitWebProcess'
 
     process_list = find_process(webprocess_name)
     if len(process_list) < 1:
@@ -78,17 +79,26 @@ class GDB():
       sys.exit(0)
 
     proc = select_target_process(process_list)
-    gdbinit = os.path.join(config_helper.project_settings_dir, "gdbinit")
+    gdbinit = os.path.join(config_helper.get_project_settings_dir(is_wpe), "gdbinit")
     sourcepath = os.path.join(os.path.dirname(proc.exe()), "../")
 
-    #self.gdb_cmd = ["cgdb", "--", str(proc.exe()), "--init-command", gdbinit, "-pid", str(proc.pid), "-cd=" + sourcepath]
-    self.gdb_cmd = ["gdb", "-i=mi", str(proc.exe()), "--init-command", gdbinit, "-pid", str(proc.pid), "-cd=" + sourcepath]
-    sys.stdout.write(' '.join(self.gdb_cmd));
-    #pyperclip.copy(' '.join(self.gdb_cmd));
+    common_args = [str(proc.exe()), "--init-command", gdbinit, "-ex", "\"load-webkit\"", "-pid", str(proc.pid), "-cd=" + sourcepath, "-q"]
+    if is_cgdb:
+      self.gdb_cmd = ["cgdb", "--"] + common_args
+      print ' '.join(self.gdb_cmd)
+      pyperclip.copy(' '.join(self.gdb_cmd));
+    else:
+      self.gdb_cmd = ["gdb", "-i=mi"] + common_args
+      sys.stdout.write(' '.join(self.gdb_cmd));
 
 def main(argv):
-  gdb = GDB()
-  #gdb.run()
+  arg_parser = argparse.ArgumentParser(description='Webkit dev script using custom jhbuild env')
+  arg_parser.add_argument('--cgdb', action='store_true', default=False, help='execute CGDB')
+  arg_parser.add_argument('--wpe', action='store_true', default=False, help='find WPE')
+  options = arg_parser.parse_args()
+  gdb = GDB(options.cgdb, options.wpe)
+  #if (options.cgdb):
+    #gdb.run()
 
 if __name__ == '__main__':
   main(sys.argv)

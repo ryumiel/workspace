@@ -22,6 +22,7 @@ def get_argument_parser():
   argParser.add_argument('--scale', type=int, default=1, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
 
   argParser.add_argument('--custom', action='store_true', default=False, help='Use custom jhbuild environment for MiniBrowser')
+  argParser.add_argument('--wpe', action='store_true', dest='wpe', default=False, help='Run WebKitWPE via dyz (default: False)')
 
   argParser.add_argument('--wrapper', help='The wrapper to analize WebProcess. (e.g. valgrind)')
   argParser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for Minibrowser or WebKitTestRunner')
@@ -30,17 +31,17 @@ def get_argument_parser():
 def main(argv):
   argParser = get_argument_parser()
   options = argParser.parse_args()
-  minibrowser = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'bin/MiniBrowser')
 
   if options.args:
     args = filter(lambda a: a != '--', options.args)
   else:
     args = ['http://localhost:8000']
 
-  if options.scale == 0:
-    options.scale = 1
-
   environment = os.environ
+  if options.wpe:
+    options.weston = True
+    options.custom = True
+
   if options.weston:
     is_weston_running = False
     for proc in psutil.process_iter():
@@ -67,8 +68,18 @@ def main(argv):
   if options.wrapper:
     os.environ["WEB_PROCESS_CMD_PREFIX"] = options.wrapper
 
+  if options.wpe:
+    os.environ["WEBKIT_EXEC_PATH"] = os.path.join(config_helper.get_webkit_dir(options, options.custom), "bin")
+    os.environ["LUA_PATH"] = os.path.join(config_helper.dyz_dir, "src/?.lua")
+
+    local_library_path = os.environ.get("LD_LIBRARY_PATH", "")
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(config_helper.get_webkit_dir(options, options.custom), "lib") + ":" + local_library_path
+    minibrowser = os.path.join(config_helper.dyz_dir, "src/main")
+  else:
+    minibrowser = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'bin/MiniBrowser')
+
   if options.gdb:
-    gdbinit = os.path.join(config_helper.project_settings_dir, "gdbinit")
+    gdbinit = os.path.join(config_helper.get_project_settings_dir(options.wpe), "gdbinit")
     cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser] + args
   elif options.test:
     testRunner = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'bin/WebKitTestRunner')

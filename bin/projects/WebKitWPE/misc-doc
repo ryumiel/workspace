@@ -1,0 +1,10 @@
+https://help.github.com/articles/ignoring-files/
+
+link .dir-local.el to the project root of the WebKitGtk
+and ignore it from the WebKit repository.
+Be sure to echo .dir-locals.el >> .git/info/exclude so git clean doesn't delete your file.
+
+Let's not use custom jhbuild.
+
+./Tools/Scripts/run-webkit-tests --gtk --no-new-test-results
+GDK_SCALE=1 GDK_BACKEND=x11 ./Tools/Scripts/run-minibrowser --gtk  http://localhost:8000
