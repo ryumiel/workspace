@@ -4,6 +4,7 @@ import json
 import os
 import os.path
 import sys
+import stat
 from subprocess import check_output
 import re
 import shutil
@@ -80,6 +81,7 @@ class ConfigHelper:
     dri_libgl_path = os.path.join(llvmpipe_libgl_path, "dri")
 
     if os.path.exists(os.path.join(llvmpipe_libgl_path, "libGL.so")) and os.path.exists(os.path.join(dri_libgl_path, "swrast_dri.so")):
+      print "found llvmpipe " + dri_libgl_path + ", " + llvmpipe_libgl_path
       # Force the Gallium llvmpipe software rasterizer
       environment['LIBGL_ALWAYS_SOFTWARE'] = "1"
       environment['LIBGL_DRIVERS_PATH'] = dri_libgl_path
@@ -91,7 +93,10 @@ class ConfigHelper:
       sys.exit(2)
 
   def set_weston_env_for_server(self, environment):
-    environment['XDG_RUNTIME_DIR'] = self.xdg_runtime_dir
+    if environment.get('XDG_RUNTIME_DIR'):
+      environment['XDG_RUNTIME_DIR'] = self.xdg_runtime_dir
+      if not os.path.exists(self.xdg_runtime_dir):
+        os.makedirs(self.xdg_runtime_dir,  stat.S_IREAD | stat.S_IEXEC | stat.S_IWUSR)
 
   def set_weston_env_for_client(self, environment):
     #environment['XDG_RUNTIME_DIR'] = self.xdg_runtime_dir
@@ -156,7 +161,7 @@ class ConfigHelper:
     self.jhbuildrc = os.path.join(self.script_dir, "jhbuildrc")
 
     self.wayland_socket = 'wpe-test'
-    self.xdg_runtime_dir = os.path.join(self.script_dir, 'tmp')
+    self.xdg_runtime_dir = '/tmp/weston-runtime-dir'
 
     self.llvm_install_prefix = '/usr/local'
 

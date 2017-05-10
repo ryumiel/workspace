@@ -10,13 +10,6 @@ import argparse
 import atexit
 
 config_helper = ConfigHelper()
-weston_proc = None
-
-def close_weston():
-  if weston_proc is None:
-    return
-  weston_proc.terminate()
-
 
 def get_argument_parser():
   argParser = argparse.ArgumentParser(description='Webkit dev script using custom jhbuild env')
@@ -26,7 +19,7 @@ def get_argument_parser():
   argParser.add_argument('--pause', action='store_true', default=False, help='Pause WebKitWebProcess to attache gdb')
   argParser.add_argument('--test', action='store_true', default=False, help='execute WebKitTestRunner instead of MiniBrowser')
   argParser.add_argument('--weston', action='store_true', default=False, help='Open MiniBrowser inside of Weston (default: False)')
-  argParser.add_argument('--scale', type=int, default=0, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
+  argParser.add_argument('--scale', type=int, default=1, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
 
   argParser.add_argument('--custom', action='store_true', default=False, help='Use custom jhbuild environment for MiniBrowser')
 
@@ -55,16 +48,14 @@ def main(argv):
         is_weston_running = True
 
     if not is_weston_running:
-      width = 940 / options.scale
-      height = 980 / options.scale
-      weston_cmd = ["weston", '--config=' + os.path.join(config_helper.resource_dir, 'weston.ini'), '--socket=' + config_helper.wayland_socket, "--scale=" + str(options.scale), '--width=' + str(width), '--height=' + str(height)]
-      weston_proc = Popen(weston_cmd, stdin=None, stdout=None, stderr=None, close_fds=True)
-      atexit.register(close_weston)
+      print "Please run weston using run-weston script"
+      exit(1)
 
     config_helper.set_weston_env_for_client(environment)
 
   else:
-    os.environ["GDK_BACKEND"] = "x11"
+    if not options.custom:
+      os.environ["GDK_BACKEND"] = "x11"
     os.environ["GDK_SCALE"] = str(options.scale)
 
   #if options.llvmpipe:

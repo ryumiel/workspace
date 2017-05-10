@@ -2,8 +2,9 @@
 
 from build_config import ConfigHelper
 from subprocess import call
-from subprocess import check_output
+from subprocess import Popen
 import argparse
+import psutil
 import os
 import sys
 
@@ -11,18 +12,31 @@ def main(argv):
   config_helper = ConfigHelper()
   argParser = argparse.ArgumentParser(description='Weston script using custom jhbuild env')
   argParser.add_argument('--llvmpipe', action='store_true', default=False, help='Use llvmpipe as a gl backend (default: False)')
-  option = argParser.parse_args()
+  argParser.add_argument('--scale', type=int, default=1, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
+  options = argParser.parse_args()
 
-  environment = os.environ
-  if option.llvmpipe:
+  if options.llvmpipe:
     config_helper.set_llvmpipe_env(os.environ)
 
-  config_helper.set_weston_env_for_server(environment)
+  for proc in psutil.process_iter():
+    if proc.name() == "weston":
+      return
 
-  ret = check_output(["gsettings", "get", "org.gnome.desktop.interface", "scaling-factor"])
-  scale = [int(s) for s in ret.split() if s.isdigit()][0]
+  width = 940 / options.scale
+  height = 980 / options.scale
+  weston_cmd = ["weston", '--config=' + os.path.join(config_helper.resource_dir, 'weston.ini'), '--socket=' + config_helper.wayland_socket, "--scale=" + str(options.scale), '--width=' + str(width), '--height=' + str(height)]
 
-  jhbuild_cmd = ['jhbuild', '-f', config_helper.jhbuildrc, 'run', 'weston', '--socket=' + config_helper.wayland_socket, '--width=1080', '--height=768', '--scale=' + str(scale)]
+  environment = os.environ
+  #config_helper.set_weston_env_for_server(environment)
+  environment['MESA_DEBUG'] = "1"
+  environment['EGL_LOG_LEVEL'] = "debug"
+  environment['LIBGL_DEBUG'] = "verbose"
+  #environment['WAYLAND_DEBUG'] = "1"
+
+  #ret = check_output(["gsettings", "get", "org.gnome.desktop.interface", "scaling-factor"])
+  #scale = [int(s) for s in ret.split() if s.isdigit()][0]
+
+  jhbuild_cmd = ['jhbuild', '-f', config_helper.jhbuildrc, 'run'] + weston_cmd
   call(jhbuild_cmd, env=environment)
 
 if __name__ == '__main__':
