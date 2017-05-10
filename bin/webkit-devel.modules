@@ -256,17 +256,19 @@
   </autotools>
 
   <cmake id="wpe">
-    <branch repo="github.com" module="WebKitForWayland/wpe.git" />
+    <cmakeargs value="-DCMAKE_BUILD_TYPE=Debug"/>
+    <branch repo="github.com" module="WebPlatformForEmbedded/WPEBackend.git" />
   </cmake>
 
   <cmake id="wpe-mesa">
+    <cmakeargs value="-DCMAKE_BUILD_TYPE=Debug"/>
     <dependencies>
       <dep package="wpe" />
       <dep package="glib" />
       <dep package="wayland" />
       <dep package="xkbcommon" />
     </dependencies>
-    <branch repo="github.com" module="WebKitForWayland/wpe-mesa.git" />
+    <branch repo="github.com" module="WebPlatformForEmbedded/WPEBackend-mesa.git" />
   </cmake>
 
   <metamodule id="meta-gstreamer">
