@@ -62,6 +62,7 @@ def runCMake(options):
 
     if options.debug:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Debug")
+        cmakeargs.append("-DMAX_PARALLEL_LINK_JOBS=4")
     else:
         cmakeargs.append("-DCMAKE_BUILD_TYPE=Release")
 
