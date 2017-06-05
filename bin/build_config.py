@@ -83,7 +83,7 @@ class ConfigHelper:
     llvmpipe_libgl_path = os.path.abspath(os.path.join(self.install_dir, 'softGL', 'lib'))
     dri_libgl_path = os.path.join(llvmpipe_libgl_path, "dri")
 
-    if os.path.exists(os.path.join(llvmpipe_libgl_path, "libGL.so")) and os.path.exists(os.path.join(dri_libgl_path, "swrast_dri.so")):
+    if os.path.exists(os.path.join(llvmpipe_libgl_path, "libGLESv2.so")) and os.path.exists(os.path.join(dri_libgl_path, "swrast_dri.so")):
       print "found llvmpipe " + dri_libgl_path + ", " + llvmpipe_libgl_path
       # Force the Gallium llvmpipe software rasterizer
       environment['LIBGL_ALWAYS_SOFTWARE'] = "1"

@@ -4,6 +4,8 @@
 <!-- vim:set ts=2 expandtab: -->
 <moduleset>
   <repository type="tarball" name="ftp.gnu.org" href="http://ftp.gnu.org/gnu/"/>
+  <repository type="git" name="git.gnome.org" default="yes"
+    href="git://git.gnome.org/"/>
   <repository type="git" name="wayland"
       href="git://anongit.freedesktop.org/git/wayland"/>
   <repository type="git" name="git.freedesktop.org"
@@ -22,6 +24,8 @@
       href="http://llvm.org"/>
   <repository type="tarball" name="webkitgtk-jhbuild-mirror"
       href="http://webkitgtk.org/jhbuild_mirror/"/>
+  <repository type="tarball" name="ftp.gnome.org"
+      href="http://ftp.gnome.org"/>
 
   <repository type="git" name="yoon.gstreamer"
       href="/home/yoon/webkit/gstreamer"/>
@@ -35,7 +39,7 @@
   </autotools>
 
   <autotools id="cairo">
-    <autogenargs value="--enable-gl=yes --enable-egl=yes --enable-glx=yes CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'"/>
+    <autogenargs value="--enable-gl=yes --enable-egl=yes --enable-glx=yes"/>
     <branch repo="git.freedesktop.org">
     </branch>
   </autotools>
@@ -64,15 +68,19 @@
   </autotools>
 
   <autotools id="libinput" autogenargs="--disable-libwacom --disable-tests --disable-documentation">
-    <branch repo="wayland" tag="1.5.2"/>
+    <branch repo="wayland" tag="1.7.2"/>
   </autotools>
 
-  <autotools id="wayland" autogenargs="--with-egl-platforms=wayland,drm,x11">
-    <branch repo="wayland" tag="1.12.0"/>
+  <autotools id="wayland-protocols">
+    <branch repo="wayland"/>
   </autotools>
 
-  <autotools id="weston" autogenargs="--disable-setuid-install">
-    <branch repo="wayland" tag="1.12.0"/>
+  <autotools id="wayland" autogenargs="--with-egl-platforms=wayland,drm,x11 --disable-documentation">
+    <branch repo="wayland" tag="1.13.0"/>
+  </autotools>
+
+  <autotools id="weston" autogenargs="--disable-setuid-install --enable-clients --enable-demo-clients-install">
+    <branch repo="wayland" tag="2.0"/>
     <dependencies>
       <dep package="wayland-protocols"/>
       <dep package="wayland"/>
@@ -84,27 +92,61 @@
     </dependencies>
   </autotools>
 
-  <cmake id="llvm" force-non-srcdir-builds="yes"
-             cmakeargs="-DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_BUILD_TYPE=Release -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_ENABLE_BACKTRACES=OFF -DLLVM_ENABLE_CRASH_OVERRIDES=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_BUILD_LLVM_DYLIB=ON">
-    <branch repo="llvm.org"
-            module="/releases/3.8.1/llvm-3.8.1.src.tar.xz" version="3.8.1" checkoutdir="llvm-3.8.1"
-            hash="sha256:6e82ce4adb54ff3afc18053d6981b6aed1406751b8742582ed50f04b5ab475f9"/>
-  </cmake>
-
   <autotools id="mesa"
     autogen-template="%(srcdir)s/%(autogen-sh)s --prefix %(prefix)s/softGL %(autogenargs)s"
-    autogenargs="--disable-dri3 --enable-dri --enable-glx --enable-egl --enable-gbm --with-egl-platforms=x11,wayland,drm --with-dri-drivers=swrast,i915,i965,nouveau --with-gallium-drivers=swrast,i915,nouveau --enable-debug">
+    autogenargs="--disable-dri3 --enable-dri --disable-glx --enable-egl --enable-gbm --with-egl-platforms=x11,wayland,drm --with-dri-drivers=swrast,i915 --with-gallium-drivers=swrast,i915 --enable-debug">
     <!--- WARNING: At jhbuildrc, when we define the path to the Gallium llvmpipe software rasterizer (needed by XvfbDriver),
           we assume that the directory is named "Mesa". So, don't change the checkoutdir name even if you update the version.  -->
     <branch repo="git.freedesktop.org"
             module="mesa/mesa.git"
             checkoutdir="mesa"
-            tag="mesa-13.0.2">
+            tag="mesa-13.0.6">
     </branch>
     <dependencies>
       <dep package="llvm"/>
       <dep package="libdrm"/>
     </dependencies>
+  </autotools>
+
+  <autotools id="pango" autogenargs="--with-cairo">
+    <branch repo="git.gnome.org" tag="1.40.6"/>
+    <dependencies>
+      <dep package="glib"/>
+      <dep package="cairo"/>
+      <dep package="gobject-introspection"/>
+      <if condition-set="x11">
+        <dep package="libXft"/>
+      </if>
+      <if condition-unset="quartz">
+        <dep package="harfbuzz"/>
+        <dep package="fontconfig"/>
+      </if>
+    </dependencies>
+  </autotools>
+
+  <autotools id="librsvg" autogen-sh="configure"
+             autogenargs="--disable-introspection --enable-pixbuf-loader --disable-gtk-theme">
+    <if condition-set="macos">
+      <autogenargs value="--disable-Bsymbolic"/>
+    </if>
+    <dependencies>
+      <dep package="gdk-pixbuf"/>
+      <dep package="glib"/>
+      <dep package="cairo"/>
+    </dependencies>
+    <branch module="/pub/GNOME/sources/librsvg/2.40/librsvg-2.40.16.tar.xz" version="2.40.16"
+            repo="ftp.gnome.org"
+            hash="sha256:d48bcf6b03fa98f07df10332fb49d8c010786ddca6ab34cbba217684f533ff2e"/>
+  </autotools>
+
+  <autotools id="adwaita-icon-theme" autogen-sh="configure">
+    <dependencies>
+      <dep package="gtk+"/>
+      <dep package="librsvg"/>
+    </dependencies>
+    <branch module="pub/GNOME/sources/adwaita-icon-theme/3.24/adwaita-icon-theme-3.24.0.tar.xz" version="3.24.0"
+            repo="ftp.gnome.org"
+            hash="sha256:ccf79ff3bd340254737ce4d28b87f0ccee4b3358cd3cd5cd11dc7b42f41b272a"/>
   </autotools>
 
   <!-- Platform metamodule -->
@@ -159,6 +201,7 @@
       <dep package="pango"/>
       <dep package="ruby"/>
       <dep package="sqlite3"/>
+      <dep package="adwaita-icon-theme"/>
       <if condition-set="x11">
         <dep package="libXcomposite"/>
         <dep package="libXdamage"/>
