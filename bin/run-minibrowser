@@ -3,6 +3,7 @@
 from build_config import ConfigHelper
 from subprocess import call
 from subprocess import Popen
+from subprocess import check_output
 import os
 import sys
 import psutil
@@ -19,10 +20,12 @@ def get_argument_parser():
   argParser.add_argument('--pause', action='store_true', default=False, help='Pause WebKitWebProcess to attache gdb')
   argParser.add_argument('--test', action='store_true', default=False, help='execute WebKitTestRunner instead of MiniBrowser')
   argParser.add_argument('--weston', action='store_true', default=False, help='Open MiniBrowser inside of Weston (default: False)')
-  argParser.add_argument('--scale', type=int, default=1, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
+  argParser.add_argument('--scale', type=int, default=0, help='Apply custom device scale using nested compositor (defaule: use current compositor)')
 
   argParser.add_argument('--custom', action='store_true', default=False, help='Use custom jhbuild environment for MiniBrowser')
   argParser.add_argument('--wpe', action='store_true', dest='wpe', default=False, help='Run WebKitWPE via dyz (default: False)')
+  argParser.add_argument('--force-compositing', action='store_true', default=False, help='Force compositing mode (default: False)')
+  argParser.add_argument('--disable-compositing', action='store_true', default=False, help='Disable compositing mode (default: False)')
 
   argParser.add_argument('--wrapper', help='The wrapper to analize WebProcess. (e.g. valgrind)')
   argParser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for Minibrowser or WebKitTestRunner')
@@ -39,7 +42,6 @@ def main(argv):
 
   environment = os.environ
   if options.wpe:
-    options.weston = True
     options.custom = True
 
   if options.weston:
@@ -57,13 +59,24 @@ def main(argv):
   else:
     if not options.custom:
       os.environ["GDK_BACKEND"] = "x11"
-    os.environ["GDK_SCALE"] = str(options.scale)
+    if options.scale is 0:
+      ret = check_output(["gsettings", "get", "org.gnome.desktop.interface", "scaling-factor"])
+      scale = [int(s) for s in ret.split() if s.isdigit()][0]
+    else:
+      scale = options.scale
+    if scale is not 0:
+      os.environ["GDK_SCALE"] = str(options.scale)
 
   #if options.llvmpipe:
   #  config_helper.set_llvmpipe_env(environment)
 
   if options.pause:
     os.environ["WEBKIT2_PAUSE_WEB_PROCESS_ON_LAUNCH"] = "1"
+
+  if options.force_compositing:
+    os.environ["WEBKIT_FORCE_COMPOSITING_MODE"] = "1"
+  elif options.disable_compositing:
+    os.environ["WEBKIT_DISABLE_COMPOSITING_MODE"] = "1"
 
   if options.wrapper:
     os.environ["WEB_PROCESS_CMD_PREFIX"] = options.wrapper
@@ -82,9 +95,11 @@ def main(argv):
     gdbinit = os.path.join(config_helper.get_project_settings_dir(options.wpe), "gdbinit")
     cmd = ["cgdb", "--", "-init-command", gdbinit, "--args", minibrowser] + args
   elif options.test:
-    testRunner = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'bin/WebKitTestRunner')
-    os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'lib/libTestRunnerInjectedBundle.so')
-    os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(config_helper.get_webkit_dir(options, options.custom), 'lib/plugins')
+    base_workdir = config_helper.get_webkit_dir(options, options.custom)
+    print base_workdir
+    testRunner = os.path.join(base_workdir, 'bin/WebKitTestRunner')
+    os.environ["TEST_RUNNER_INJECTED_BUNDLE_FILENAME"] = os.path.join(base_workdir, 'lib/libTestRunnerInjectedBundle.so')
+    os.environ["TEST_RUNNER_TEST_PLUGIN_PATH"] = os.path.join(base_workdir, 'lib/plugins')
     cmd = [testRunner] + args
   else:
     cmd = [minibrowser] + args
