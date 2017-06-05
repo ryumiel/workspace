@@ -67,8 +67,8 @@ class GDB():
     self.gdb_ps = subprocess.Popen(self.gdb_cmd)
     self.gdb_ps.wait()
 
-  def __init__(self, is_cgdb, is_wpe):
-    if is_wpe:
+  def __init__(self, options):
+    if options.wpe:
       webprocess_name = 'WPEWebProcess'
     else:
       webprocess_name = 'WebKitWebProcess'
@@ -79,24 +79,30 @@ class GDB():
       sys.exit(0)
 
     proc = select_target_process(process_list)
-    gdbinit = os.path.join(config_helper.get_project_settings_dir(is_wpe), "gdbinit")
+
+    if options.mem:
+      subprocess.call(['ps_mem.py', '-p', str(proc.pid), '-w', '1'])
+      exit(0)
+
+    gdbinit = os.path.join(config_helper.get_project_settings_dir(options.wpe), "gdbinit")
     sourcepath = os.path.join(os.path.dirname(proc.exe()), "../")
 
-    common_args = [str(proc.exe()), "--init-command", gdbinit, "-ex", "\"load-webkit\"", "-pid", str(proc.pid), "-cd=" + sourcepath, "-q"]
-    if is_cgdb:
-      self.gdb_cmd = ["cgdb", "--"] + common_args
+    common_args_gdb = [str(proc.exe()), "--init-command", gdbinit, "-ex", "\"load-webkit\"", "-pid", str(proc.pid), "-cd=" + sourcepath, "-q"]
+    if options.cgdb:
+      self.gdb_cmd = ["cgdb", "--"] + common_args_gdb
       print ' '.join(self.gdb_cmd)
       pyperclip.copy(' '.join(self.gdb_cmd));
     else:
-      self.gdb_cmd = ["gdb", "-i=mi"] + common_args
+      self.gdb_cmd = ["gdb", "-i=mi"] + common_args_gdb
       sys.stdout.write(' '.join(self.gdb_cmd));
 
 def main(argv):
   arg_parser = argparse.ArgumentParser(description='Webkit dev script using custom jhbuild env')
   arg_parser.add_argument('--cgdb', action='store_true', default=False, help='execute CGDB')
   arg_parser.add_argument('--wpe', action='store_true', default=False, help='find WPE')
+  arg_parser.add_argument('--mem', action='store_true', default=False, help='execute CGDB')
   options = arg_parser.parse_args()
-  gdb = GDB(options.cgdb, options.wpe)
+  gdb = GDB(options)
   #if (options.cgdb):
     #gdb.run()
 
