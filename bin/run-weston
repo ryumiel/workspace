@@ -28,10 +28,10 @@ def main(argv):
 
   environment = os.environ
   #config_helper.set_weston_env_for_server(environment)
-  environment['MESA_DEBUG'] = "1"
-  environment['EGL_LOG_LEVEL'] = "debug"
-  environment['LIBGL_DEBUG'] = "verbose"
-  #environment['WAYLAND_DEBUG'] = "1"
+  #environment['MESA_DEBUG'] = "1"
+  #environment['EGL_LOG_LEVEL'] = "debug"
+  #environment['LIBGL_DEBUG'] = "verbose"
+  environment['WAYLAND_DEBUG'] = "1"
 
   #ret = check_output(["gsettings", "get", "org.gnome.desktop.interface", "scaling-factor"])
   #scale = [int(s) for s in ret.split() if s.isdigit()][0]
