@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+
+from build_config import ConfigHelper
+from datetime import timedelta
+import atexit
+import os.path
+import subprocess
+import sys, argparse
+import time
+import multiprocessing
+
+start_time = time.time()
+config_helper = ConfigHelper()
+
+def build_finished():
+    elapsed_time = round(time.time() - start_time)
+    if elapsed_time > 30:
+      subprocess.call(["/usr/bin/aplay", "-q", config_helper.build_finished_sound_file])
+
+def set_build_environment(use_clang, use_icecc):
+  if use_clang:
+    os.environ["CC"]="clang"
+    os.environ["CXX"]="clang++"
+    os.environ["CCACHE_CPP2"]="yes"
+
+  if use_icecc:
+    os.environ["CCACHE_PREFIX"]="icecc"
+    os.environ["CCACHE_DISABLE"]="1"
+    if use_clang:
+      os.environ["ICECC_VERSION"]=config_helper.config['icecc_clang_version']
+      os.environ["ICECC_CLANG_REMOTE_CPP"]="1"
+    else:
+      os.environ["ICECC_VERSION"]=config_helper.config['icecc_gcc_version']
+
+def fast_build(is_debug, num_of_jobs):
+    build_command = ["./Tools/jhbuild/jhbuild-wrapper", "--gtk", "run", "ninja-build", "-j", str(num_of_jobs), "-C"]
+    if is_debug:
+      build_command.append("WebKitBuild/Debug")
+    else:
+      build_command.append("WebKitBuild/Release")
+
+    minimum_targets = ["MiniBrowser", "WebKitTestRunner", "libTestNetscapePlugIn.so", "libTestRunnerInjectedBundle.so", "lib/libwebkit2gtkinjectedbundle.so", "WebKitWebProcess", "WebKitDatabaseProcess", "WebKitPluginProcess", "WebKitPluginProcess2", "WebKitNetworkProcess", "ImageDiff", "jsc", "LLIntOffsetsExtractor"]
+    return build_command + minimum_targets
+
+def main(argv):
+    arg_parser = argparse.ArgumentParser(description='Webkit dev script using custom jhbuild env')
+    arg_parser.add_argument('--release', action='store_false', dest='debug', default=False, help='Compile with Debug configuration (default: Release)')
+    arg_parser.add_argument('--debug', action='store_true', default=False, help='Compile with Debug configuration (default: Release)')
+    arg_parser.add_argument('--wpe', action='store_true', default=False, help='Build WPE port instead of Gtk port (default: False)')
+    arg_parser.add_argument('-j', '--jobs', type=int, default=0, help='Number of compiling jobs')
+    arg_parser.add_argument('--clang', action='store_true', default=False, help='Use clang instead of gcc (default: False)')
+    arg_parser.add_argument('--fast', action='store_true', default=False, help='Compile only selected components (default: False)')
+
+    options = arg_parser.parse_args()
+    atexit.register(build_finished)
+
+    config_helper.ensure_icecc_clang_env()
+    config_helper.ensure_icecc_gcc_env()
+
+    try:
+      iceccd_active_status = subprocess.check_output(["/usr/bin/systemctl", "is-active", "iceccd.service"]).rstrip();
+    except subprocess.CalledProcessError, e:
+      iceccd_active_status = "unknown"
+
+    print "icecc : " + iceccd_active_status
+    if iceccd_active_status == "active":
+      use_icecc = True
+    elif iceccd_active_status == "unknown":
+      use_icecc = False
+    else:
+      print "Error: Cannot determine the status of iceccd"
+      exit(1)
+
+    set_build_environment(options.clang, use_icecc)
+
+    if options.jobs == 0:
+      if use_icecc:
+        num_of_jobs = 37
+      else:
+        num_of_jobs = multiprocessing.cpu_count()
+    else:
+      num_of_jobs = options.jobs
+
+    additional_cmake_options = []
+    if options.wpe:
+      port = "--wpe"
+    else:
+      port = "--gtk"
+      additional_cmake_options.append("-DENABLE_INTROSPECTION=OFF")
+      additional_cmake_options.append("-DENABLE_API_TESTS=OFF")
+
+    if options.fast:
+      build_command = fast_build(options.debug, num_of_jobs)
+      subprocess.call(build_command)
+      return
+
+    build_command = ["./Tools/Scripts/build-webkit", port]
+
+    if options.debug:
+      build_command.append("--debug")
+      additional_cmake_options.append("-DMAX_PARALLEL_LINK_JOBS=4")
+    else:
+      build_command.append("--release")
+
+    build_command.append("--makeargs=\"-j" + str(num_of_jobs) + "\"")
+
+    additional_cmake_options = "--cmakeargs=\"" + " ".join(additional_cmake_options) + "\""
+    build_command.append(additional_cmake_options)
+
+    subprocess.call(build_command)
+
+if __name__ == '__main__':
+    main(sys.argv)
+
+
